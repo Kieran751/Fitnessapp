@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sets-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "sets", "run", "dev"],
+      "port": 5173
+    }
+  ]
+}

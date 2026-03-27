@@ -1,0 +1,82 @@
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'General Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-bg-primary: #0A0A0F;
+  --color-bg-surface: #141419;
+  --color-bg-elevated: #1E1E26;
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+  --color-accent-muted: #1E3A5F;
+  --color-success: #22C55E;
+  --color-danger: #EF4444;
+  --color-text-primary: #F0F0F5;
+  --color-text-secondary: #71717A;
+  --color-text-tertiary: #3F3F50;
+  --color-border: #27272F;
+}
+
+:root {
+  --bg-primary: #0A0A0F;
+  --bg-surface: #141419;
+  --bg-elevated: #1E1E26;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-muted: #1E3A5F;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --streak: #8B5CF6;
+  --danger: #EF4444;
+  --text-primary: #F0F0F5;
+  --text-secondary: #71717A;
+  --text-tertiary: #3F3F50;
+  --border: #27272F;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'General Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+/* Remove input number arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
