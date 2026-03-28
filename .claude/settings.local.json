@@ -8,7 +8,9 @@
       "Bash(node -e \":*)",
       "Bash(npm run:*)",
       "Bash(node -e \"const fm = require\\(''''./node_modules/framer-motion/dist/cjs/index.js''''\\); console.log\\(typeof fm.motion\\)\")",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npm info:*)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

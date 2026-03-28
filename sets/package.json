@@ -17,6 +17,7 @@
     "@tanstack/react-router": "^1.168.7",
     "@tanstack/router-plugin": "^1.167.8",
     "dexie": "^4.4.1",
+    "dexie-react-hooks": "^4.4.0",
     "framer-motion": "^12.38.0",
     "jotai": "^2.19.0",
     "lucide-react": "^1.7.0",

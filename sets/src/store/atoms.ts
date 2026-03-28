@@ -80,6 +80,14 @@ export interface WorkoutSummaryState {
   prs: PRRecord[]
 }
 
+// ─── Toast ────────────────────────────────────────────────────────────────────
+export interface ToastState {
+  id: string
+  message: string
+  variant: 'success' | 'error' | 'info'
+}
+export const toastAtom = atom<ToastState | null>(null)
+
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 export const workoutSessionAtom = atom<WorkoutSession | null>(null)
 export const restTimerAtom = atom<RestTimerState>(defaultRestTimer)
