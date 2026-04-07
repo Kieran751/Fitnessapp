@@ -9,11 +9,11 @@ export function Input({ label, error, className = '', id, ...props }: InputProps
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-')
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       {label && (
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-[var(--text-secondary)]"
+          className="label-caption"
         >
           {label}
         </label>
@@ -21,8 +21,8 @@ export function Input({ label, error, className = '', id, ...props }: InputProps
       <input
         id={inputId}
         className={[
-          'h-11 px-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-tertiary)] outline-none transition-colors duration-150',
-          'focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]',
+          'h-12 px-4 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-tertiary)] outline-none transition-colors duration-150',
+          'focus:border-[var(--accent)] focus-visible:[box-shadow:0_0_0_3px_var(--accent-ring)]',
           error ? 'border-[var(--danger)]' : '',
           className,
         ].join(' ')}

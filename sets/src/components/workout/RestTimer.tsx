@@ -22,16 +22,13 @@ export function RestTimer() {
         initial={{ y: 80 }}
         animate={{ y: 0 }}
         onClick={expand}
-        className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 bg-[var(--bg-elevated)] border-t border-[var(--border)]"
+        className="fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between px-5 py-3 bg-[var(--bg-overlay)] border border-[var(--border)] rounded-full shadow-2xl"
       >
-        <span className="text-sm font-medium text-[var(--text-secondary)]">Rest</span>
-        <span
-          className="text-lg font-semibold text-[var(--accent)] tabular-nums"
-          style={{ fontFamily: 'JetBrains Mono, monospace' }}
-        >
+        <span className="label-caption">Rest</span>
+        <span className="font-mono tabular text-xl font-bold text-[var(--accent)]">
           {formatSeconds(timer.remainingSeconds)}
         </span>
-        <span className="text-xs text-[var(--text-secondary)]">tap to expand</span>
+        <span className="text-xs text-[var(--text-tertiary)]">expand</span>
       </motion.button>
     )
   }
@@ -44,7 +41,7 @@ export function RestTimer() {
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-elevated)] border-t border-[var(--border)] rounded-t-2xl pb-safe"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-overlay)] border-t border-[var(--border)] rounded-t-3xl pb-safe"
       >
         {/* Minimise button */}
         <div className="flex justify-end px-4 pt-4 pb-2">
@@ -59,18 +56,22 @@ export function RestTimer() {
 
         <div className="flex flex-col items-center pb-8 gap-4">
           {/* Exercise name */}
-          <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider px-4 text-center truncate max-w-[280px]">
+          <p className="label-caption px-4 text-center truncate max-w-[280px]">
             {timer.exerciseName}
           </p>
 
           {/* Ring */}
-          <div className="relative w-36 h-36 flex items-center justify-center">
-            <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 136 136">
+          <div className="relative w-44 h-44 flex items-center justify-center">
+            <svg
+              className="absolute inset-0 w-full h-full -rotate-90"
+              viewBox="0 0 136 136"
+              style={{ filter: 'drop-shadow(0 0 12px rgba(190,242,100,0.35))' }}
+            >
               {/* Track */}
               <circle
                 cx="68" cy="68" r={RADIUS}
                 fill="none"
-                stroke="var(--border)"
+                stroke="var(--border-subtle)"
                 strokeWidth="4"
               />
               {/* Progress */}
@@ -85,28 +86,25 @@ export function RestTimer() {
                 style={{ transition: 'stroke-dashoffset 1s linear' }}
               />
             </svg>
-            <span
-              className="text-3xl font-semibold tabular-nums text-[var(--text-primary)] z-10"
-              style={{ fontFamily: 'JetBrains Mono, monospace' }}
-            >
+            <span className="font-mono tabular text-5xl font-bold text-[var(--text-primary)] z-10">
               {formatSeconds(timer.remainingSeconds)}
             </span>
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => adjust(-30)}
-              className="flex flex-col items-center gap-1 text-[var(--text-secondary)]"
+              className="h-11 px-5 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
             >
-              <span className="text-lg font-semibold">−30s</span>
+              −30s
             </button>
 
             <button
               type="button"
               onClick={skip}
-              className="h-10 px-6 rounded-full bg-[var(--bg-primary)] border border-[var(--border)] text-sm font-medium text-[var(--text-secondary)]"
+              className="h-11 px-6 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-sm font-semibold text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-colors"
             >
               Skip
             </button>
@@ -114,9 +112,9 @@ export function RestTimer() {
             <button
               type="button"
               onClick={() => adjust(30)}
-              className="flex flex-col items-center gap-1 text-[var(--text-secondary)]"
+              className="h-11 px-5 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
             >
-              <span className="text-lg font-semibold">+30s</span>
+              +30s
             </button>
           </div>
         </div>

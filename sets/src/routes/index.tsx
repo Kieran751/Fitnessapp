@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-import { Dumbbell, Settings, Zap, Calendar, TrendingUp, Scale, Clock } from 'lucide-react'
+import { Settings, Zap, Calendar, TrendingUp, Scale, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -83,27 +83,27 @@ function DashboardPage() {
   const weightStep = settings.units === 'kg' ? 0.5 : 1
 
   return (
-    <div className="flex flex-col min-h-full px-4 pt-safe">
+    <div className="flex flex-col min-h-full px-5 pt-safe">
       {/* Header */}
-      <div className="flex items-center justify-between pt-6 pb-2">
+      <div className="flex items-center justify-between pt-8 pb-2">
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
           <h1
-            className="text-4xl font-bold tracking-tight text-[var(--accent)]"
-            style={{ fontFamily: 'General Sans, sans-serif', letterSpacing: '-0.02em' }}
+            className="text-5xl font-bold text-[var(--text-primary)]"
+            style={{ letterSpacing: '-0.04em', lineHeight: 1 }}
           >
             SETS
           </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-0.5">Ready to train?</p>
+          <p className="text-sm text-[var(--text-secondary)] mt-2">Ready to train?</p>
         </motion.div>
 
         <Link to="/settings">
           <motion.div
             whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
+            className="w-11 h-11 flex items-center justify-center rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
           >
             <Settings size={18} />
           </motion.div>
@@ -115,26 +115,12 @@ function DashboardPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="mt-6"
+        className="mt-8"
       >
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/5 to-transparent pointer-events-none" />
-          <div className="flex flex-col gap-4 relative">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center">
-                <Dumbbell size={20} className="text-[var(--accent)]" strokeWidth={2} />
-              </div>
-              <div>
-                <p className="font-semibold text-[var(--text-primary)]">Quick Start</p>
-                <p className="text-sm text-[var(--text-secondary)]">Begin an empty workout</p>
-              </div>
-            </div>
-            <Button size="lg" fullWidth onClick={startFreestyle}>
-              <Zap size={18} />
-              Start Workout
-            </Button>
-          </div>
-        </Card>
+        <Button size="lg" fullWidth onClick={startFreestyle}>
+          <Zap size={20} fill="currentColor" />
+          Start Workout
+        </Button>
       </motion.div>
 
       {/* Stats row */}
@@ -142,33 +128,27 @@ function DashboardPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.2 }}
-        className="mt-4 grid grid-cols-2 gap-3"
+        className="mt-8 grid grid-cols-2 gap-3"
       >
-        <Card className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-            <Calendar size={14} />
-            <span className="text-xs font-medium uppercase tracking-wider">This Week</span>
+        <Card className="flex flex-col gap-2 !p-5">
+          <div className="flex items-center gap-2">
+            <Calendar size={12} className="text-[var(--text-tertiary)]" />
+            <span className="label-caption">This Week</span>
           </div>
-          <p
-            className="text-3xl font-semibold text-[var(--text-primary)] tabular-nums"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
+          <p className="font-mono tabular text-4xl font-bold text-[var(--text-primary)]">
             {thisWeekCount}
           </p>
-          <p className="text-xs text-[var(--text-secondary)]">workouts</p>
+          <p className="text-xs text-[var(--text-tertiary)]">workouts</p>
         </Card>
-        <Card className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-            <TrendingUp size={14} />
-            <span className="text-xs font-medium uppercase tracking-wider">Total</span>
+        <Card className="flex flex-col gap-2 !p-5">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={12} className="text-[var(--text-tertiary)]" />
+            <span className="label-caption">Total</span>
           </div>
-          <p
-            className="text-3xl font-semibold text-[var(--text-primary)] tabular-nums"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
+          <p className="font-mono tabular text-4xl font-bold text-[var(--text-primary)]">
             {totalCount}
           </p>
-          <p className="text-xs text-[var(--text-secondary)]">all time</p>
+          <p className="text-xs text-[var(--text-tertiary)]">all time</p>
         </Card>
       </motion.div>
 
@@ -180,22 +160,22 @@ function DashboardPage() {
         className="mt-3"
       >
         <div
-          className="flex items-center justify-between bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl px-4 py-3 cursor-pointer hover:border-[var(--text-tertiary)] transition-colors duration-150"
+          className="flex items-center justify-between bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl px-5 py-4 cursor-pointer hover:border-[var(--border)] transition-colors duration-150"
           onClick={() => {
             if (latestBodyWeight) setWeightValue(latestBodyWeight.weight)
             setShowWeightModal(true)
           }}
         >
-          <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-            <Scale size={15} />
-            <span className="text-sm font-medium text-[var(--text-primary)]">Body Weight</span>
+          <div className="flex items-center gap-2.5">
+            <Scale size={15} className="text-[var(--text-tertiary)]" />
+            <span className="text-sm font-semibold text-[var(--text-primary)]">Body Weight</span>
           </div>
           {latestBodyWeight ? (
-            <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
-              {latestBodyWeight.weight} {settings.units}
+            <span className="font-mono tabular text-base font-bold text-[var(--text-primary)]">
+              {latestBodyWeight.weight} <span className="text-[var(--text-tertiary)] text-xs">{settings.units}</span>
             </span>
           ) : (
-            <span className="text-xs text-[var(--accent)]">Log weight</span>
+            <span className="text-xs font-semibold text-[var(--accent)] uppercase tracking-[0.05em]">Log weight</span>
           )}
         </div>
       </motion.div>
@@ -205,7 +185,7 @@ function DashboardPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.3 }}
-        className="mt-6"
+        className="mt-8"
       >
         <TemplateQuickStart startFromTemplate={startFromTemplate} />
       </motion.div>
@@ -216,17 +196,15 @@ function DashboardPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.35 }}
-          className="mt-6"
+          className="mt-8"
         >
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-              Recent
-            </h2>
-            <Link to="/history" className="text-xs font-medium text-[var(--accent)]">
+            <h2 className="label-caption">Recent</h2>
+            <Link to="/history" className="text-xs font-semibold uppercase tracking-[0.05em] text-[var(--accent)]">
               See all
             </Link>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2.5">
             {recentWorkouts.map((w) => {
               const duration =
                 w.completedAt && w.startedAt
@@ -236,7 +214,7 @@ function DashboardPage() {
                 <motion.div key={w.id} whileTap={{ scale: 0.985 }}>
                   <button
                     type="button"
-                    className="w-full text-left flex items-center justify-between bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl px-4 py-3 hover:border-[var(--text-tertiary)] transition-colors duration-150"
+                    className="w-full text-left flex items-center justify-between bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl px-5 py-4 hover:border-[var(--accent)] transition-colors duration-150"
                     onClick={() =>
                       navigate({
                         to: '/history/$workoutId',
@@ -245,13 +223,13 @@ function DashboardPage() {
                     }
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{w.name}</p>
+                      <p className="text-base font-semibold text-[var(--text-primary)] truncate tracking-tight">{w.name}</p>
                       <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                         {w.completedAt ? formatRelativeDate(new Date(w.completedAt)) : ''}
                       </p>
                     </div>
                     {duration && (
-                      <span className="flex items-center gap-1 text-xs text-[var(--text-secondary)] shrink-0 ml-3">
+                      <span className="flex items-center gap-1.5 font-mono tabular text-xs text-[var(--text-tertiary)] shrink-0 ml-3">
                         <Clock size={11} />
                         {duration}
                       </span>
@@ -264,7 +242,7 @@ function DashboardPage() {
         </motion.div>
       )}
 
-      <div className="pb-6" />
+      <div className="pb-8" />
 
       {/* Body weight modal */}
       <Modal

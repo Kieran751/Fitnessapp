@@ -30,12 +30,12 @@ export function TemplateCard({ template, onEdit, onDelete, onStart, delay = 0 }:
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
-      className="relative overflow-hidden rounded-xl"
+      className="relative overflow-hidden rounded-2xl"
     >
       {/* Delete reveal zone */}
       <motion.div
         style={{ opacity: deleteOpacity }}
-        className="absolute inset-y-0 right-0 w-20 bg-[var(--danger)] flex items-center justify-center rounded-r-xl"
+        className="absolute inset-y-0 right-0 w-20 bg-[var(--danger)] flex items-center justify-center rounded-r-2xl"
       >
         <Trash2 size={20} className="text-white" />
       </motion.div>
@@ -47,12 +47,14 @@ export function TemplateCard({ template, onEdit, onDelete, onStart, delay = 0 }:
         dragConstraints={{ left: -80, right: 0 }}
         dragElastic={0.1}
         onDragEnd={handleDragEnd}
-        className="relative bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl p-4 cursor-grab active:cursor-grabbing"
+        className="relative bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl p-5 cursor-grab active:cursor-grabbing"
       >
-        <div className="flex items-start justify-between gap-3">
-          <button type="button" onClick={onEdit} className="flex-1 text-left">
-            <p className="font-semibold text-[var(--text-primary)]">{template.name}</p>
-            <p className="text-sm text-[var(--text-secondary)] mt-0.5">
+        <div className="flex items-center justify-between gap-3">
+          <button type="button" onClick={onEdit} className="flex-1 text-left min-w-0">
+            <p className="text-lg font-semibold text-[var(--text-primary)] truncate tracking-tight">
+              {template.name}
+            </p>
+            <p className="label-caption mt-1">
               {template.exercises.length} exercise{template.exercises.length !== 1 ? 's' : ''}
             </p>
           </button>
@@ -60,7 +62,7 @@ export function TemplateCard({ template, onEdit, onDelete, onStart, delay = 0 }:
             <button
               type="button"
               onClick={e => { e.stopPropagation(); onStart() }}
-              className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--accent)] text-white text-sm font-semibold shrink-0"
+              className="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-[var(--accent)] text-[var(--accent-on)] text-sm font-semibold shrink-0 hover:bg-[var(--accent-hover)] transition-colors"
             >
               <Play size={14} fill="currentColor" />
               Start
@@ -74,7 +76,7 @@ export function TemplateCard({ template, onEdit, onDelete, onStart, delay = 0 }:
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute inset-0 bg-[var(--bg-elevated)]/95 backdrop-blur-sm rounded-xl flex items-center justify-between px-4"
+          className="absolute inset-0 bg-[var(--bg-overlay)]/95 backdrop-blur-sm rounded-2xl flex items-center justify-between px-4"
         >
           <p className="text-sm font-medium text-[var(--text-primary)]">Delete template?</p>
           <div className="flex gap-2">

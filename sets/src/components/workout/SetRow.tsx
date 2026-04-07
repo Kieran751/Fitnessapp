@@ -6,9 +6,9 @@ import { type SetState, type SetType } from '../../store/atoms'
 
 const SET_TYPE_CONFIG: Record<SetType, { label: string; style: string; next: SetType }> = {
   normal:  { label: 'N',  style: 'bg-[var(--bg-elevated)] text-[var(--text-tertiary)]', next: 'warmup' },
-  warmup:  { label: 'W',  style: 'bg-[#F59E0B]/20 text-[#F59E0B]', next: 'dropset' },
-  dropset: { label: 'D',  style: 'bg-purple-500/20 text-purple-400', next: 'failure' },
-  failure: { label: 'F',  style: 'bg-red-500/20 text-[var(--danger)]', next: 'normal' },
+  warmup:  { label: 'W',  style: 'bg-[var(--gold-muted)] text-[var(--gold)]', next: 'dropset' },
+  dropset: { label: 'D',  style: 'bg-[#C084FC]/15 text-[#C084FC]', next: 'failure' },
+  failure: { label: 'F',  style: 'bg-[var(--danger-muted)] text-[var(--danger)]', next: 'normal' },
 }
 
 interface SetRowProps {
@@ -56,25 +56,34 @@ export function SetRow({
     <motion.div
       layout
       animate={{
-        backgroundColor: showGreen ? 'rgba(34,197,94,0.12)' : 'transparent',
+        backgroundColor: showGreen
+          ? 'rgba(190, 242, 100, 0.14)'
+          : set.isLogged
+            ? 'rgba(190, 242, 100, 0.05)'
+            : 'transparent',
         scale: showGreen ? 1.01 : 1,
       }}
       transition={{ duration: 0.4 }}
-      className={['rounded-lg px-3 py-2', set.isLogged ? 'opacity-70' : ''].join(' ')}
+      className={['rounded-xl px-3 py-2.5', set.isLogged ? 'opacity-90' : ''].join(' ')}
     >
       <div className="flex items-center gap-2">
         {/* Set type badge */}
         <button
           type="button"
           onClick={set.isLogged ? undefined : cycleSetType}
-          className={['w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-colors', SET_TYPE_CONFIG[set.setType].style].join(' ')}
+          className={[
+            'w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold tabular transition-colors',
+            set.setType === 'normal' && set.isLogged
+              ? 'bg-[var(--accent-muted)] text-[var(--accent)]'
+              : SET_TYPE_CONFIG[set.setType].style,
+          ].join(' ')}
         >
           {set.setType === 'normal' ? set.setNumber : SET_TYPE_CONFIG[set.setType].label}
         </button>
 
         {/* Previous */}
         <div className="w-16 text-center">
-          <span className="text-xs tabular-nums" style={{ fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-tertiary)' }}>
+          <span className="font-mono tabular text-xs text-[var(--text-tertiary)]">
             {hasPrev ? `${previousWeight}×${previousReps}` : '—'}
           </span>
         </div>
@@ -82,7 +91,7 @@ export function SetRow({
         {/* Weight */}
         <div className="flex-1">
           {set.isLogged ? (
-            <p className="text-center font-semibold tabular-nums text-sm" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+            <p className="text-center font-mono tabular font-semibold text-sm text-[var(--text-primary)]">
               {set.weight}
             </p>
           ) : (
@@ -99,7 +108,7 @@ export function SetRow({
         {/* Reps */}
         <div className="flex-1">
           {set.isLogged ? (
-            <p className="text-center font-semibold tabular-nums text-sm" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+            <p className="text-center font-mono tabular font-semibold text-sm text-[var(--text-primary)]">
               {set.reps}
             </p>
           ) : (
@@ -120,7 +129,7 @@ export function SetRow({
             className={[
               'w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200',
               set.isLogged
-                ? 'bg-[var(--accent)] text-white'
+                ? 'bg-[var(--accent)] text-[var(--accent-on)]'
                 : 'border-2 border-[var(--border)] text-[var(--text-tertiary)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
             ].join(' ')}
           >
@@ -138,8 +147,8 @@ export function SetRow({
             exit={{ opacity: 0, scale: 0.8 }}
             className="mt-1 flex justify-end"
           >
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">
-              🏆 PR!
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.05em] px-2.5 py-1 rounded-full bg-[var(--gold-muted)] text-[var(--gold)]">
+              New PR
             </span>
           </motion.div>
         )}

@@ -39,7 +39,7 @@ export function Toast() {
         >
           <div
             className={[
-              'flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--bg-elevated)] border shadow-lg',
+              'flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[var(--bg-overlay)] border shadow-2xl',
               borderMap[toast.variant],
             ].join(' ')}
             style={{ maxWidth: 360, pointerEvents: 'auto' }}

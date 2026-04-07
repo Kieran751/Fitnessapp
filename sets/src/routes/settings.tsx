@@ -155,22 +155,27 @@ function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full px-4 pt-safe">
+    <div className="flex flex-col min-h-full px-5 pt-safe">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex items-center gap-3 pt-6 pb-2"
+        className="flex items-center gap-3 pt-8 pb-2"
       >
         <Link to="/">
           <motion.div
             whileTap={{ scale: 0.95 }}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
           >
             <ArrowLeft size={18} />
           </motion.div>
         </Link>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Settings</h1>
+        <h1
+          className="text-4xl font-bold text-[var(--text-primary)]"
+          style={{ letterSpacing: '-0.03em' }}
+        >
+          Settings
+        </h1>
       </motion.div>
 
       <motion.div
@@ -194,8 +199,8 @@ function SettingsPage() {
                 className={[
                   'h-10 rounded-lg font-semibold text-sm transition-colors duration-150',
                   settings.units === unit
-                    ? 'bg-[var(--accent)] text-[var(--bg-primary)]'
-                    : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border)]',
+                    ? 'bg-[var(--accent)] text-[var(--accent-on)]'
+                    : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border)]',
                 ].join(' ')}
               >
                 {unit}
@@ -219,8 +224,8 @@ function SettingsPage() {
                 className={[
                   'h-10 rounded-lg font-semibold text-sm transition-colors duration-150',
                   settings.defaultRestSeconds === secs
-                    ? 'bg-[var(--accent)] text-[var(--bg-primary)]'
-                    : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border)]',
+                    ? 'bg-[var(--accent)] text-[var(--accent-on)]'
+                    : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border)]',
                 ].join(' ')}
               >
                 {secs >= 60 ? `${secs / 60}m` : `${secs}s`}
@@ -244,8 +249,8 @@ function SettingsPage() {
                 className={[
                   'h-10 rounded-lg font-semibold text-sm capitalize transition-colors duration-150',
                   settings.theme === theme
-                    ? 'bg-[var(--accent)] text-[var(--bg-primary)]'
-                    : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border)]',
+                    ? 'bg-[var(--accent)] text-[var(--accent-on)]'
+                    : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border)]',
                 ].join(' ')}
               >
                 {theme}
@@ -325,7 +330,7 @@ function SettingsPage() {
           value={clearConfirmText}
           onChange={(e) => setClearConfirmText(e.target.value)}
           placeholder="DELETE"
-          className="w-full h-11 px-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] text-sm outline-none focus:border-[var(--danger)] transition-colors duration-150 mb-4"
+          className="w-full h-12 px-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-primary)] text-sm outline-none focus:border-[var(--danger)] transition-colors duration-150 mb-4"
         />
         <div className="flex flex-col gap-2">
           <Button

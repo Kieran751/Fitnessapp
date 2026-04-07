@@ -27,28 +27,30 @@ export function ExerciseSection({
   const totalSets = exercise.sets.length
 
   return (
-    <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl overflow-hidden">
+    <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden">
       {/* Exercise header */}
       <button
         type="button"
         onClick={() => onToggle(exerciseIdx)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left"
+        className="w-full flex items-center justify-between px-5 py-4 text-left"
       >
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-[var(--text-primary)] truncate">{exercise.exercise.name}</p>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">{exercise.exercise.muscleGroup}</p>
+          <p className="text-lg font-semibold text-[var(--text-primary)] truncate tracking-tight">
+            {exercise.exercise.name}
+          </p>
+          <p className="label-caption mt-1">{exercise.exercise.muscleGroup}</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0 ml-2">
+        <div className="flex items-center gap-3 shrink-0 ml-3">
           {!exercise.isExpanded && (
-            <span className="text-xs font-medium text-[var(--text-secondary)]">
-              {completedSets}/{totalSets} sets
+            <span className="font-mono tabular text-xs font-semibold text-[var(--text-secondary)]">
+              {completedSets}/{totalSets}
             </span>
           )}
           <motion.div
             animate={{ rotate: exercise.isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25 }}
           >
-            <ChevronDown size={18} className="text-[var(--text-secondary)]" />
+            <ChevronDown size={18} className="text-[var(--text-tertiary)]" />
           </motion.div>
         </div>
       </button>
@@ -64,16 +66,16 @@ export function ExerciseSection({
             style={{ overflow: 'hidden' }}
           >
             {/* Column headers */}
-            <div className="flex items-center gap-2 px-3 pb-1 border-t border-[var(--border)]">
-              <span className="w-8 text-center text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">SET</span>
-              <span className="w-16 text-center text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">PREV</span>
-              <span className="flex-1 text-center text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">{settings.units.toUpperCase()}</span>
-              <span className="flex-1 text-center text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">REPS</span>
+            <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-t border-[var(--border-subtle)]">
+              <span className="w-9 text-center label-caption">Set</span>
+              <span className="w-16 text-center label-caption">Prev</span>
+              <span className="flex-1 text-center label-caption">{settings.units}</span>
+              <span className="flex-1 text-center label-caption">Reps</span>
               <span className="w-10" />
             </div>
 
             {/* Set rows */}
-            <div className="flex flex-col gap-1 px-1 pt-1 pb-2">
+            <div className="flex flex-col gap-2 px-2 pt-1 pb-3">
               {exercise.sets.map((set, setIdx) => (
                 <motion.div
                   key={set.id}
@@ -100,7 +102,7 @@ export function ExerciseSection({
             <button
               type="button"
               onClick={() => onAddSet(exerciseIdx)}
-              className="w-full flex items-center justify-center gap-1.5 h-9 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--accent)] border-t border-[var(--border)] transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 h-11 text-xs font-semibold uppercase tracking-[0.05em] text-[var(--text-tertiary)] hover:text-[var(--accent)] border-t border-[var(--border-subtle)] transition-colors"
             >
               <Plus size={14} />
               Add Set

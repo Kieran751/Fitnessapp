@@ -14,10 +14,11 @@ export function TemplateQuickStart({ startFromTemplate }: TemplateQuickStartProp
 
   return (
     <div>
-      <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-3">
-        Quick Start
-      </h2>
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+      <h2 className="label-caption mb-3">Quick Start</h2>
+      <div
+        className="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar"
+        style={{ scrollbarWidth: 'none' }}
+      >
         {templates.map((template, i) => (
           <motion.div
             key={template.id}
@@ -30,18 +31,13 @@ export function TemplateQuickStart({ startFromTemplate }: TemplateQuickStartProp
             <button
               type="button"
               onClick={() => startFromTemplate(template)}
-              className="flex items-center gap-2 h-10 pl-3 pr-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--text-tertiary)] transition-colors duration-150"
+              className="flex items-center gap-2.5 h-11 pl-4 pr-2 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--accent)] transition-colors duration-150"
             >
-              <div className="text-left">
-                <p className="text-sm font-semibold text-[var(--text-primary)] whitespace-nowrap leading-tight">
-                  {template.name}
-                </p>
-                <p className="text-xs text-[var(--text-secondary)] leading-tight">
-                  {template.exercises.length} ex
-                </p>
-              </div>
-              <div className="w-6 h-6 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center ml-1">
-                <Play size={11} className="text-[var(--accent)]" fill="currentColor" />
+              <span className="text-sm font-semibold text-[var(--text-primary)] whitespace-nowrap">
+                {template.name}
+              </span>
+              <div className="w-7 h-7 rounded-full bg-[var(--accent)] flex items-center justify-center">
+                <Play size={11} className="text-[var(--accent-on)]" fill="currentColor" />
               </div>
             </button>
           </motion.div>
