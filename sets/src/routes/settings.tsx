@@ -1,7 +1,7 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import {
-  ArrowLeft, Scale, Timer, Moon, Download, Upload, Trash2,
+  Scale, Timer, Moon, Download, Upload, Trash2,
 } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useRef, useState } from 'react'
@@ -160,16 +160,8 @@ function SettingsPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex items-center gap-3 pt-8 pb-2"
+        className="pt-8 pb-2"
       >
-        <Link to="/">
-          <motion.div
-            whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
-          >
-            <ArrowLeft size={18} />
-          </motion.div>
-        </Link>
         <h1
           className="text-4xl font-bold text-[var(--text-primary)]"
           style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.03em' }}

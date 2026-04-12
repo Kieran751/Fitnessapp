@@ -1,11 +1,12 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { LayoutDashboard, BookMarked, TrendingUp, History } from 'lucide-react'
+import { LayoutDashboard, BookMarked, TrendingUp, History, Settings } from 'lucide-react'
 
 const tabs = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/templates', label: 'Templates', icon: BookMarked },
   { to: '/progress', label: 'Progress', icon: TrendingUp },
   { to: '/history', label: 'History', icon: History },
+  { to: '/settings', label: 'Settings', icon: Settings },
 ] as const
 
 export function BottomNav() {

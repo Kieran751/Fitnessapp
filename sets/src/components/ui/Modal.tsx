@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 
 interface ModalProps {
   isOpen: boolean
@@ -11,7 +12,7 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, fullScreen = false }: ModalProps) {
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -65,6 +66,7 @@ export function Modal({ isOpen, onClose, title, children, fullScreen = false }: 
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }

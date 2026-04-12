@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-import { Settings, Play, Scale, Clock } from 'lucide-react'
+import { Play, Scale, Clock, Flame, User } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -12,6 +12,7 @@ import { TemplateQuickStart } from '../components/dashboard/TemplateQuickStart'
 import { WeeklyActivity } from '../components/dashboard/WeeklyActivity'
 import { MuscleHeatmap } from '../components/dashboard/MuscleHeatmap'
 import { useWorkout } from '../hooks/useWorkout'
+import { useStreak } from '../hooks/useStreak'
 import { db } from '../db'
 import { settingsAtom } from '../store/atoms'
 import { formatRelativeDate, formatDuration } from '../lib/formatters'
@@ -52,6 +53,7 @@ function DashboardPage() {
   const { startFreestyle, startFromTemplate } = useWorkout()
   const navigate = useNavigate()
   const settings = useAtomValue(settingsAtom)
+  const streak = useStreak()
   const [showWeightModal, setShowWeightModal] = useState(false)
   const [weightValue, setWeightValue] = useState(80)
 
@@ -111,32 +113,47 @@ function DashboardPage() {
   return (
     <div className="flex flex-col min-h-full px-5 pt-safe pb-28">
       {/* Header row */}
-      <div className="flex items-center justify-between pt-8 pb-2">
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex items-center gap-2"
-        >
-          <span className="text-xl" aria-hidden="true">&#9889;</span>
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex items-center justify-between pt-8 pb-2"
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="w-11 h-11 rounded-full flex items-center justify-center border border-[var(--glass-border)]"
+            style={{
+              background: 'linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%)',
+            }}
+          >
+            <User size={20} className="text-[var(--text-secondary)]" />
+          </div>
           <h1
             className="text-xl font-bold text-[var(--text-primary)]"
             style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.02em' }}
           >
             SETS
           </h1>
-        </motion.div>
+        </div>
 
-        <Link to="/settings">
-          <motion.div
-            whileTap={{ scale: 0.95 }}
-            className="w-11 h-11 flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
-            style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+        {streak > 0 && (
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-full border"
+            style={{
+              background: 'rgba(245, 158, 11, 0.1)',
+              borderColor: 'rgba(245, 158, 11, 0.25)',
+            }}
           >
-            <Settings size={18} />
-          </motion.div>
-        </Link>
-      </div>
+            <Flame size={16} style={{ color: '#F59E0B' }} />
+            <span
+              className="text-sm font-bold tracking-[0.08em] uppercase"
+              style={{ fontFamily: "'Manrope', sans-serif", color: '#F59E0B' }}
+            >
+              {streak} DAY STREAK
+            </span>
+          </div>
+        )}
+      </motion.div>
 
       {/* Date + Greeting */}
       <motion.div
