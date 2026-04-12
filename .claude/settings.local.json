@@ -10,7 +10,14 @@
       "Bash(node -e \"const fm = require\\(''''./node_modules/framer-motion/dist/cjs/index.js''''\\); console.log\\(typeof fm.motion\\)\")",
       "mcp__Claude_Preview__preview_start",
       "Bash(npm info:*)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(gh api:*)",
+      "Read(//opt/homebrew/lib/node_modules/npm/bin/**)",
+      "Bash(command -v pnpm yarn bun)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Read(//usr/local/bin/**)",
+      "Bash(command -v node)",
+      "Bash(claude mcp:*)"
     ]
   }
 }

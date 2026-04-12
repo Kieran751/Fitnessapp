@@ -19,12 +19,6 @@ export function Toast() {
     info: <Info size={18} className="text-[var(--accent)] shrink-0" />,
   }
 
-  const borderMap = {
-    success: 'border-[var(--success)]/30',
-    error: 'border-[var(--danger)]/30',
-    info: 'border-[var(--accent)]/30',
-  }
-
   return (
     <AnimatePresence>
       {toast && (
@@ -38,11 +32,14 @@ export function Toast() {
           style={{ pointerEvents: 'none' }}
         >
           <div
-            className={[
-              'flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--bg-elevated)] border shadow-lg',
-              borderMap[toast.variant],
-            ].join(' ')}
-            style={{ maxWidth: 360, pointerEvents: 'auto' }}
+            className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-[var(--glass-border)] shadow-2xl"
+            style={{
+              maxWidth: 360,
+              pointerEvents: 'auto',
+              background: 'var(--bg-elevated)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+            }}
           >
             {iconMap[toast.variant]}
             <p className="text-sm font-medium text-[var(--text-primary)]">{toast.message}</p>

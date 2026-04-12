@@ -1,40 +1,63 @@
+import { type ReactNode } from 'react'
+
 type SetType = 'normal' | 'warmup' | 'dropset' | 'failure'
+type BadgeVariant = 'default' | 'accent' | 'gold' | 'danger'
 
 interface BadgeProps {
-  type: SetType
+  type?: SetType
+  variant?: BadgeVariant
+  children?: ReactNode
   className?: string
 }
 
-const badgeConfig: Record<SetType, { label: string; styles: string }> = {
+const setTypeConfig: Record<SetType, { label: string; styles: string }> = {
   normal: {
     label: 'Normal',
-    styles: 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-[var(--border)]',
+    styles:
+      'bg-[var(--glass)] text-[var(--text-secondary)] border border-[var(--glass-border)]',
   },
   warmup: {
     label: 'Warm-up',
-    styles: 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
+    styles:
+      'bg-[var(--gold-surface)] text-[var(--gold)] border border-transparent',
   },
   dropset: {
     label: 'Drop Set',
-    styles: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    styles: 'bg-[var(--secondary-surface)] text-[var(--secondary)] border border-transparent',
   },
   failure: {
     label: 'Failure',
-    styles: 'bg-red-500/10 text-[var(--danger)] border-red-500/20',
+    styles:
+      'bg-[var(--danger-surface)] text-[var(--danger)] border border-transparent',
   },
 }
 
-export function Badge({ type, className = '' }: BadgeProps) {
-  const config = badgeConfig[type]
+const variantConfig: Record<BadgeVariant, string> = {
+  default:
+    'bg-[var(--glass)] text-[var(--text-secondary)] border border-[var(--glass-border)]',
+  accent:
+    'bg-[var(--primary-surface)] text-[var(--accent)] border border-transparent',
+  gold:
+    'bg-[var(--gold-surface)] text-[var(--gold)] border border-transparent',
+  danger:
+    'bg-[var(--danger-surface)] text-[var(--danger)] border border-transparent',
+}
+
+export function Badge({ type, variant, children, className = '' }: BadgeProps) {
+  const styles = type
+    ? setTypeConfig[type].styles
+    : variantConfig[variant ?? 'default']
+  const content = children ?? (type ? setTypeConfig[type].label : null)
   return (
     <span
       className={[
-        'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border',
-        config.styles,
+        'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em]',
+        styles,
         className,
       ].join(' ')}
+      style={{ fontFamily: "'Manrope', sans-serif" }}
     >
-      {config.label}
+      {content}
     </span>
   )
 }

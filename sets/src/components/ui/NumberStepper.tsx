@@ -36,15 +36,11 @@ export function NumberStepper({
   const displayValue = Number.isInteger(value) ? String(value) : value.toFixed(1)
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      {label && (
-        <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-          {label}
-        </span>
-      )}
-      <div className="flex items-center gap-3 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border)] p-1">
+    <div className="flex flex-col items-center gap-2">
+      {label && <span className="label-caption">{label}</span>}
+      <div className="flex items-center gap-2">
         <motion.div
-          whileTap={{ scale: canDecrement ? 0.9 : 1 }}
+          whileTap={{ scale: canDecrement ? 0.92 : 1 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <button
@@ -52,30 +48,27 @@ export function NumberStepper({
             onClick={decrement}
             disabled={!canDecrement}
             className={[
-              'min-w-[48px] min-h-[48px] flex items-center justify-center rounded-lg transition-colors duration-150',
+              'min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] backdrop-blur-[12px] transition-all duration-150',
               canDecrement
-                ? 'text-[var(--text-primary)] hover:bg-[var(--border)] active:bg-[var(--border)]'
-                : 'text-[var(--text-tertiary)] cursor-not-allowed',
+                ? 'text-[var(--text-primary)] hover:bg-[var(--glass-hover)]'
+                : 'text-[var(--text-tertiary)] cursor-not-allowed opacity-40',
             ].join(' ')}
           >
             <Minus size={18} strokeWidth={2.5} />
           </button>
         </motion.div>
 
-        <div className="flex items-baseline gap-1 min-w-[64px] justify-center">
-          <span
-            className="text-2xl font-semibold tabular-nums"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
+        <div className="flex items-baseline gap-1 min-w-[72px] justify-center">
+          <span className="font-mono tabular text-2xl font-bold text-[var(--text-primary)]">
             {displayValue}
           </span>
           {unit && (
-            <span className="text-sm text-[var(--text-secondary)]">{unit}</span>
+            <span className="text-sm text-[var(--text-tertiary)]">{unit}</span>
           )}
         </div>
 
         <motion.div
-          whileTap={{ scale: canIncrement ? 0.9 : 1 }}
+          whileTap={{ scale: canIncrement ? 0.92 : 1 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <button
@@ -83,10 +76,10 @@ export function NumberStepper({
             onClick={increment}
             disabled={!canIncrement}
             className={[
-              'min-w-[48px] min-h-[48px] flex items-center justify-center rounded-lg transition-colors duration-150',
+              'min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] backdrop-blur-[12px] transition-all duration-150',
               canIncrement
-                ? 'text-[var(--accent)] hover:bg-[var(--accent)]/10 active:bg-[var(--accent)]/20'
-                : 'text-[var(--text-tertiary)] cursor-not-allowed',
+                ? 'text-[var(--accent)] hover:bg-[var(--primary-surface)]'
+                : 'text-[var(--text-tertiary)] cursor-not-allowed opacity-40',
             ].join(' ')}
           >
             <Plus size={18} strokeWidth={2.5} />

@@ -75,7 +75,12 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50"
+            style={{
+              background: 'rgba(9, 14, 24, 0.8)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+            }}
             onClick={onClose}
           />
           <motion.div
@@ -87,12 +92,17 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
             className="fixed inset-0 z-50 flex flex-col bg-[var(--bg-primary)]"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 pt-safe pt-4 pb-3 border-b border-[var(--border)]">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Add Exercise</h2>
+            <div className="flex items-center justify-between px-4 pt-safe pt-4 pb-3 border-b border-[var(--glass-border)]">
+              <h2
+                className="text-lg font-semibold text-[var(--text-primary)]"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                Add Exercise
+              </h2>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--glass)] transition-colors"
               >
                 <X size={18} />
               </button>
@@ -107,7 +117,8 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Search exercises..."
-                  className="w-full h-11 pl-9 pr-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--accent)]"
+                  className="w-full h-11 pl-9 pr-4 rounded-2xl bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--accent)] focus:[box-shadow:0_0_0_3px_var(--primary-glow)] transition-all"
+                  style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
                 />
               </div>
             </div>
@@ -120,10 +131,10 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
                   type="button"
                   onClick={() => setMuscleFilter(mg)}
                   className={[
-                    'shrink-0 h-8 px-3 rounded-full text-xs font-medium transition-colors duration-150',
+                    'shrink-0 h-8 px-3 rounded-full text-xs font-medium transition-all duration-150',
                     muscleFilter === mg
-                      ? 'bg-[var(--accent)] text-white'
-                      : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border)]',
+                      ? 'bg-[var(--primary-surface)] text-[var(--accent)]'
+                      : 'bg-[var(--glass)] text-[var(--text-secondary)] border border-[var(--glass-border)]',
                   ].join(' ')}
                 >
                   {mg}
@@ -136,7 +147,10 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
               {/* Custom exercise option */}
               <div className="px-4 pb-2">
                 {showCustomForm ? (
-                  <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl p-4 flex flex-col gap-3">
+                  <div
+                    className="rounded-2xl p-4 flex flex-col gap-3 border border-[var(--glass-border)]"
+                    style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+                  >
                     <Input
                       label="Exercise name"
                       value={customName}
@@ -150,7 +164,7 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
                         <select
                           value={customMuscle}
                           onChange={e => setCustomMuscle(e.target.value)}
-                          className="w-full h-11 px-3 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] outline-none"
+                          className="w-full h-11 px-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--glass-border)] text-[var(--text-primary)] outline-none"
                         >
                           {MUSCLE_GROUPS.filter(m => m !== 'All').map(m => (
                             <option key={m} value={m}>{m}</option>
@@ -162,7 +176,7 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
                         <select
                           value={customEquipment}
                           onChange={e => setCustomEquipment(e.target.value)}
-                          className="w-full h-11 px-3 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] outline-none"
+                          className="w-full h-11 px-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--glass-border)] text-[var(--text-primary)] outline-none"
                         >
                           {EQUIPMENT_OPTIONS.map(eq => (
                             <option key={eq} value={eq}>{eq}</option>
@@ -179,7 +193,7 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
                   <button
                     type="button"
                     onClick={() => setShowCustomForm(true)}
-                    className="w-full flex items-center gap-3 h-12 px-4 rounded-xl border border-dashed border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                    className="w-full flex items-center gap-3 h-12 px-4 rounded-xl border border-dashed border-[var(--glass-border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
                   >
                     <Plus size={16} />
                     <span className="text-sm font-medium">Custom Exercise</span>
@@ -199,7 +213,7 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
                       type="button"
                       whileTap={{ scale: 0.98 }}
                       onClick={() => { onSelect(ex); onClose() }}
-                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--bg-surface)] transition-colors text-left"
+                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--glass)] transition-colors text-left"
                     >
                       <div>
                         <p className="text-sm font-medium text-[var(--text-primary)]">{ex.name}</p>

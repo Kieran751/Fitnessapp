@@ -43,34 +43,40 @@ export function HistoryCard({
       <button
         type="button"
         onClick={onClick}
-        className="w-full text-left bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--text-tertiary)] transition-colors duration-150"
+        className="w-full text-left rounded-3xl p-5 border border-[var(--glass-border)] hover:bg-[var(--glass-hover)] transition-all duration-150"
+        style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
       >
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-[var(--text-primary)] truncate">{workout.name}</p>
-            <p className="text-xs text-[var(--text-secondary)] mt-0.5">{relDate}</p>
+            <p className="text-[17px] font-semibold text-[var(--text-primary)] truncate tracking-tight">
+              {workout.name}
+            </p>
+            <p className="text-[13px] text-[var(--text-secondary)] mt-0.5">{relDate}</p>
           </div>
           {prCount > 0 && (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--warning)]/15 border border-[var(--warning)]/30 shrink-0">
-              <Trophy size={11} className="text-[var(--warning)]" />
-              <span className="text-xs font-semibold text-[var(--warning)]">{prCount} PR</span>
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--gold-surface)] shrink-0">
+              <Trophy size={11} className="text-[var(--gold)]" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--gold)]">
+                {prCount} PR
+              </span>
             </div>
           )}
         </div>
 
-        <div className="mt-3 flex items-center gap-4 text-xs text-[var(--text-secondary)]">
+        <div className="mt-4 flex items-center gap-4 text-xs text-[var(--text-secondary)]">
           {duration && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1.5 font-mono tabular">
               <Clock size={12} />
               {duration}
             </span>
           )}
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1.5">
             <Dumbbell size={12} />
-            {exerciseCount} exercises · {setCount} sets
+            <span className="font-mono tabular">{exerciseCount}</span>ex &middot;{' '}
+            <span className="font-mono tabular">{setCount}</span>sets
           </span>
           {totalVolume > 0 && (
-            <span className="ml-auto font-medium text-[var(--text-primary)]">
+            <span className="ml-auto font-mono tabular font-semibold text-[var(--text-primary)]">
               {formatVolume(totalVolume, unit)}
             </span>
           )}

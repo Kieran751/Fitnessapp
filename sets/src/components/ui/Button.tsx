@@ -12,16 +12,20 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<Variant, string> = {
-  primary: 'bg-[var(--accent)] text-[var(--bg-primary)] font-semibold hover:bg-[var(--accent-hover)] active:bg-[var(--accent-hover)]',
-  secondary: 'bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border)] hover:bg-[var(--bg-elevated)] hover:border-[var(--text-tertiary)]',
-  ghost: 'bg-transparent text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]',
-  danger: 'bg-transparent text-[var(--danger)] border border-[var(--danger)] hover:bg-[var(--danger)] hover:text-white',
+  primary:
+    'text-[var(--on-primary)] font-semibold',
+  secondary:
+    'bg-[var(--glass)] text-[var(--text-primary)] border border-[var(--glass-border)] backdrop-blur-[12px] hover:bg-[var(--glass-hover)]',
+  ghost:
+    'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--glass)] hover:text-[var(--text-primary)]',
+  danger:
+    'bg-[var(--danger-muted)] text-[var(--danger)] hover:bg-[var(--danger-surface)]',
 }
 
 const sizeStyles: Record<Size, string> = {
-  sm: 'h-8 px-3 text-sm rounded-lg',
-  md: 'h-11 px-5 text-base rounded-xl',
-  lg: 'h-14 px-6 text-lg rounded-xl',
+  sm: 'h-9 px-4 text-sm',
+  md: 'h-14 px-5 text-base',
+  lg: 'h-16 px-7 text-lg',
 }
 
 export function Button({
@@ -34,21 +38,30 @@ export function Button({
   type = 'button',
   ...props
 }: ButtonProps) {
+  const isPrimary = variant === 'primary'
+
   return (
     <motion.div
       whileTap={{ scale: disabled ? 1 : 0.97 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      style={{ display: fullWidth ? 'flex' : 'inline-flex' }}
+      style={{ display: fullWidth ? 'flex' : 'inline-flex', width: fullWidth ? '100%' : undefined }}
     >
       <button
         type={type}
         className={[
-          'inline-flex flex-1 items-center justify-center gap-2 font-medium transition-colors duration-150 cursor-pointer select-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]',
+          'sets-btn inline-flex flex-1 items-center justify-center gap-2 rounded-2xl font-semibold transition-all duration-150 cursor-pointer select-none outline-none focus-visible:[box-shadow:0_0_0_3px_var(--accent-ring)]',
           variantStyles[variant],
           sizeStyles[size],
           disabled ? 'opacity-40 cursor-not-allowed pointer-events-none' : '',
           className,
         ].join(' ')}
+        style={isPrimary && !disabled ? {
+          background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+          boxShadow: '0 8px 32px rgba(79, 124, 255, 0.25)',
+          fontFamily: "'Manrope', sans-serif",
+        } : {
+          fontFamily: "'Manrope', sans-serif",
+        }}
         disabled={disabled}
         {...props}
       >
