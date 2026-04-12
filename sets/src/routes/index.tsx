@@ -9,6 +9,8 @@ import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
 import { NumberStepper } from '../components/ui/NumberStepper'
 import { TemplateQuickStart } from '../components/dashboard/TemplateQuickStart'
+import { WeeklyActivity } from '../components/dashboard/WeeklyActivity'
+import { MuscleHeatmap } from '../components/dashboard/MuscleHeatmap'
 import { useWorkout } from '../hooks/useWorkout'
 import { db } from '../db'
 import { settingsAtom } from '../store/atoms'
@@ -221,6 +223,16 @@ function DashboardPage() {
         </div>
       </motion.div>
 
+      {/* Weekly Activity */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.22 }}
+        className="mt-6"
+      >
+        <WeeklyActivity />
+      </motion.div>
+
       {/* Body weight */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -258,6 +270,16 @@ function DashboardPage() {
         className="mt-8"
       >
         <TemplateQuickStart startFromTemplate={startFromTemplate} />
+      </motion.div>
+
+      {/* Weekly Muscle Focus */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.32 }}
+        className="mt-6"
+      >
+        <MuscleHeatmap />
       </motion.div>
 
       {/* Recent workouts */}
