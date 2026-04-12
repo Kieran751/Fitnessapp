@@ -58,7 +58,7 @@ function HistoryPage() {
   }, [])
 
   return (
-    <div className="flex flex-col min-h-full px-5 pt-safe">
+    <div className="flex flex-col min-h-full px-5 pt-safe pb-28">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -67,7 +67,7 @@ function HistoryPage() {
       >
         <h1
           className="text-4xl font-bold text-[var(--text-primary)]"
-          style={{ letterSpacing: '-0.03em' }}
+          style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.03em' }}
         >
           History
         </h1>
@@ -91,7 +91,7 @@ function HistoryPage() {
           />
         </motion.div>
       ) : (
-        <div className="flex flex-col gap-3 mt-4 pb-8">
+        <div className="flex flex-col gap-3 mt-4">
           {summaries.map((s, i) => (
             <HistoryCard
               key={s.workout.id}

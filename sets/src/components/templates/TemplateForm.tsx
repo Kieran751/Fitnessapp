@@ -116,7 +116,12 @@ export function TemplateForm({ isOpen, onClose, onSaved, template }: TemplateFor
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50"
+            style={{
+              background: 'rgba(9, 14, 24, 0.8)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+            }}
           />
           <motion.div
             key="form"
@@ -127,7 +132,7 @@ export function TemplateForm({ isOpen, onClose, onSaved, template }: TemplateFor
             className="fixed inset-0 z-50 flex flex-col bg-[var(--bg-primary)]"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 pt-safe pt-4 pb-3 border-b border-[var(--border)]">
+            <div className="flex items-center justify-between px-4 pt-safe pt-4 pb-3 border-b border-[var(--glass-border)]">
               <button
                 type="button"
                 onClick={onClose}
@@ -135,7 +140,10 @@ export function TemplateForm({ isOpen, onClose, onSaved, template }: TemplateFor
               >
                 Cancel
               </button>
-              <h2 className="text-base font-semibold text-[var(--text-primary)]">
+              <h2
+                className="text-base font-semibold text-[var(--text-primary)]"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
                 {isEditing ? 'Edit Template' : 'New Template'}
               </h2>
               <Button size="sm" onClick={handleSave} disabled={!name.trim() || exercises.length === 0}>
@@ -164,8 +172,11 @@ export function TemplateForm({ isOpen, onClose, onSaved, template }: TemplateFor
                 >
                   {exercises.map(row => (
                     <Reorder.Item key={row.id} value={row} className="list-none">
-                      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl overflow-hidden">
-                        <div className="flex items-center gap-2 px-3 py-3 border-b border-[var(--border)]">
+                      <div
+                        className="rounded-2xl overflow-hidden border border-[var(--glass-border)]"
+                        style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+                      >
+                        <div className="flex items-center gap-2 px-3 py-3 border-b border-[var(--glass-border)]">
                           <GripVertical size={16} className="text-[var(--text-tertiary)] cursor-grab touch-none" />
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm text-[var(--text-primary)] truncate">{row.exercise.name}</p>
@@ -201,7 +212,7 @@ export function TemplateForm({ isOpen, onClose, onSaved, template }: TemplateFor
                             <button
                               type="button"
                               onClick={() => cycleRest(row.id, row.restSeconds)}
-                              className="h-12 px-3 flex items-center gap-1 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-semibold"
+                              className="h-12 px-3 flex items-center gap-1 rounded-lg bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-primary)] text-sm font-semibold"
                             >
                               {row.restSeconds}s
                               <ChevronDown size={12} className="text-[var(--text-tertiary)]" />
@@ -218,7 +229,7 @@ export function TemplateForm({ isOpen, onClose, onSaved, template }: TemplateFor
               <button
                 type="button"
                 onClick={() => setShowPicker(true)}
-                className="flex items-center justify-center gap-2 h-12 rounded-xl border border-dashed border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                className="flex items-center justify-center gap-2 h-12 rounded-xl border border-dashed border-[var(--glass-border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
               >
                 <Plus size={16} />
                 <span className="text-sm font-medium">Add Exercise</span>

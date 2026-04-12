@@ -41,7 +41,7 @@ function TemplatesPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full px-5 pt-safe">
+    <div className="flex flex-col min-h-full px-5 pt-safe pb-28">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -51,7 +51,7 @@ function TemplatesPage() {
         <div>
           <h1
             className="text-4xl font-bold text-[var(--text-primary)]"
-            style={{ letterSpacing: '-0.03em' }}
+            style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.03em' }}
           >
             Templates
           </h1>
@@ -67,7 +67,7 @@ function TemplatesPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="mt-4 flex flex-col gap-3 pb-8"
+        className="mt-4 flex flex-col gap-3"
       >
         {templates.length === 0 ? (
           <EmptyState

@@ -155,7 +155,7 @@ function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full px-5 pt-safe">
+    <div className="flex flex-col min-h-full px-5 pt-safe pb-28">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -165,14 +165,14 @@ function SettingsPage() {
         <Link to="/">
           <motion.div
             whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
           >
             <ArrowLeft size={18} />
           </motion.div>
         </Link>
         <h1
           className="text-4xl font-bold text-[var(--text-primary)]"
-          style={{ letterSpacing: '-0.03em' }}
+          style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.03em' }}
         >
           Settings
         </h1>
@@ -197,11 +197,14 @@ function SettingsPage() {
                 key={unit}
                 onClick={() => setSettings((s) => ({ ...s, units: unit }))}
                 className={[
-                  'h-10 rounded-lg font-semibold text-sm transition-colors duration-150',
+                  'h-10 rounded-xl font-semibold text-sm transition-all duration-150',
                   settings.units === unit
-                    ? 'bg-[var(--accent)] text-[var(--accent-on)]'
-                    : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border)]',
+                    ? 'text-[var(--on-primary)]'
+                    : 'bg-[var(--glass)] text-[var(--text-secondary)] border border-[var(--glass-border)]',
                 ].join(' ')}
+                style={settings.units === unit ? {
+                  background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+                } : undefined}
               >
                 {unit}
               </button>
@@ -222,11 +225,14 @@ function SettingsPage() {
                 key={secs}
                 onClick={() => setSettings((s) => ({ ...s, defaultRestSeconds: secs }))}
                 className={[
-                  'h-10 rounded-lg font-semibold text-sm transition-colors duration-150',
+                  'h-10 rounded-xl font-semibold text-sm transition-all duration-150',
                   settings.defaultRestSeconds === secs
-                    ? 'bg-[var(--accent)] text-[var(--accent-on)]'
-                    : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border)]',
+                    ? 'text-[var(--on-primary)]'
+                    : 'bg-[var(--glass)] text-[var(--text-secondary)] border border-[var(--glass-border)]',
                 ].join(' ')}
+                style={settings.defaultRestSeconds === secs ? {
+                  background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+                } : undefined}
               >
                 {secs >= 60 ? `${secs / 60}m` : `${secs}s`}
               </button>
@@ -247,11 +253,14 @@ function SettingsPage() {
                 key={theme}
                 onClick={() => handleThemeChange(theme)}
                 className={[
-                  'h-10 rounded-lg font-semibold text-sm capitalize transition-colors duration-150',
+                  'h-10 rounded-xl font-semibold text-sm capitalize transition-all duration-150',
                   settings.theme === theme
-                    ? 'bg-[var(--accent)] text-[var(--accent-on)]'
-                    : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border)]',
+                    ? 'text-[var(--on-primary)]'
+                    : 'bg-[var(--glass)] text-[var(--text-secondary)] border border-[var(--glass-border)]',
                 ].join(' ')}
+                style={settings.theme === theme ? {
+                  background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+                } : undefined}
               >
                 {theme}
               </button>
@@ -283,7 +292,7 @@ function SettingsPage() {
         </Card>
 
         {/* Danger zone */}
-        <div className="mt-2">
+        <div className="mt-2 p-4 rounded-3xl bg-[var(--danger-surface)]">
           <Button variant="danger" fullWidth onClick={() => setClearStep(1)}>
             <Trash2 size={16} />
             Clear All Data
@@ -297,7 +306,7 @@ function SettingsPage() {
         </div>
       </motion.div>
 
-      {/* Clear data — step 1 */}
+      {/* Clear data -- step 1 */}
       <Modal
         isOpen={clearStep === 1}
         onClose={() => setClearStep(0)}
@@ -316,7 +325,7 @@ function SettingsPage() {
         </div>
       </Modal>
 
-      {/* Clear data — step 2: type DELETE */}
+      {/* Clear data -- step 2: type DELETE */}
       <Modal
         isOpen={clearStep === 2}
         onClose={() => { setClearStep(0); setClearConfirmText('') }}
@@ -330,7 +339,7 @@ function SettingsPage() {
           value={clearConfirmText}
           onChange={(e) => setClearConfirmText(e.target.value)}
           placeholder="DELETE"
-          className="w-full h-12 px-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-primary)] text-sm outline-none focus:border-[var(--danger)] transition-colors duration-150 mb-4"
+          className="w-full h-[52px] px-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--glass-border)] text-[var(--text-primary)] text-sm outline-none focus:border-[var(--danger)] transition-all duration-150 mb-4"
         />
         <div className="flex flex-col gap-2">
           <Button
@@ -362,7 +371,10 @@ function SettingsPage() {
             <p className="text-sm text-[var(--text-secondary)] mb-4">
               This backup contains:
             </p>
-            <div className="flex flex-col gap-1 mb-6 bg-[var(--bg-elevated)] rounded-xl p-3 text-sm">
+            <div
+              className="flex flex-col gap-1 mb-6 rounded-2xl p-3 text-sm border border-[var(--glass-border)]"
+              style={{ background: 'var(--glass)' }}
+            >
               <p className="text-[var(--text-primary)]">{(importData.exercises ?? []).length} exercises</p>
               <p className="text-[var(--text-primary)]">{(importData.templates ?? []).length} templates</p>
               <p className="text-[var(--text-primary)]">{(importData.workouts ?? []).length} workouts</p>

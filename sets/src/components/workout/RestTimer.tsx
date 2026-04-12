@@ -22,7 +22,12 @@ export function RestTimer() {
         initial={{ y: 80 }}
         animate={{ y: 0 }}
         onClick={expand}
-        className="fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between px-5 py-3 bg-[var(--bg-overlay)] border border-[var(--border)] rounded-full shadow-2xl"
+        className="fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between px-5 py-3 border border-[var(--glass-border)] rounded-full shadow-2xl"
+        style={{
+          background: 'rgba(15, 23, 41, 0.8)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+        }}
       >
         <span className="label-caption">Rest</span>
         <span className="font-mono tabular text-xl font-bold text-[var(--accent)]">
@@ -41,14 +46,15 @@ export function RestTimer() {
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-overlay)] border-t border-[var(--border)] rounded-t-3xl pb-safe"
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--glass-border)] rounded-t-3xl pb-safe"
+        style={{ background: 'var(--bg-elevated)' }}
       >
         {/* Minimise button */}
         <div className="flex justify-end px-4 pt-4 pb-2">
           <button
             type="button"
             onClick={minimize}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--border)] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--glass)] transition-colors"
           >
             <X size={16} />
           </button>
@@ -65,13 +71,13 @@ export function RestTimer() {
             <svg
               className="absolute inset-0 w-full h-full -rotate-90"
               viewBox="0 0 136 136"
-              style={{ filter: 'drop-shadow(0 0 12px rgba(190,242,100,0.35))' }}
+              style={{ filter: 'drop-shadow(0 0 12px rgba(79,124,255,0.35))' }}
             >
               {/* Track */}
               <circle
                 cx="68" cy="68" r={RADIUS}
                 fill="none"
-                stroke="var(--border-subtle)"
+                stroke="var(--glass-border)"
                 strokeWidth="4"
               />
               {/* Progress */}
@@ -96,15 +102,15 @@ export function RestTimer() {
             <button
               type="button"
               onClick={() => adjust(-30)}
-              className="h-11 px-5 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+              className="h-11 px-5 rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--glass-hover)] transition-all"
             >
-              −30s
+              -30s
             </button>
 
             <button
               type="button"
               onClick={skip}
-              className="h-11 px-6 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-sm font-semibold text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-colors"
+              className="h-11 px-6 rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--glass-hover)] transition-all"
             >
               Skip
             </button>
@@ -112,7 +118,7 @@ export function RestTimer() {
             <button
               type="button"
               onClick={() => adjust(30)}
-              className="h-11 px-5 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+              className="h-11 px-5 rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--glass-hover)] transition-all"
             >
               +30s
             </button>

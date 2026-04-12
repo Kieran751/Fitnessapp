@@ -5,10 +5,10 @@ import { NumberStepper } from '../ui/NumberStepper'
 import { type SetState, type SetType } from '../../store/atoms'
 
 const SET_TYPE_CONFIG: Record<SetType, { label: string; style: string; next: SetType }> = {
-  normal:  { label: 'N',  style: 'bg-[var(--bg-elevated)] text-[var(--text-tertiary)]', next: 'warmup' },
-  warmup:  { label: 'W',  style: 'bg-[var(--gold-muted)] text-[var(--gold)]', next: 'dropset' },
-  dropset: { label: 'D',  style: 'bg-[#C084FC]/15 text-[#C084FC]', next: 'failure' },
-  failure: { label: 'F',  style: 'bg-[var(--danger-muted)] text-[var(--danger)]', next: 'normal' },
+  normal:  { label: 'N',  style: 'bg-[var(--glass)] text-[var(--text-tertiary)]', next: 'warmup' },
+  warmup:  { label: 'W',  style: 'bg-[var(--gold-surface)] text-[var(--gold)]', next: 'dropset' },
+  dropset: { label: 'D',  style: 'bg-[var(--secondary-surface)] text-[var(--secondary)]', next: 'failure' },
+  failure: { label: 'F',  style: 'bg-[var(--danger-surface)] text-[var(--danger)]', next: 'normal' },
 }
 
 interface SetRowProps {
@@ -57,9 +57,9 @@ export function SetRow({
       layout
       animate={{
         backgroundColor: showGreen
-          ? 'rgba(190, 242, 100, 0.14)'
+          ? 'rgba(79, 124, 255, 0.14)'
           : set.isLogged
-            ? 'rgba(190, 242, 100, 0.05)'
+            ? 'rgba(79, 124, 255, 0.05)'
             : 'transparent',
         scale: showGreen ? 1.01 : 1,
       }}
@@ -74,7 +74,7 @@ export function SetRow({
           className={[
             'w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold tabular transition-colors',
             set.setType === 'normal' && set.isLogged
-              ? 'bg-[var(--accent-muted)] text-[var(--accent)]'
+              ? 'bg-[var(--primary-surface)] text-[var(--accent)]'
               : SET_TYPE_CONFIG[set.setType].style,
           ].join(' ')}
         >
@@ -84,7 +84,7 @@ export function SetRow({
         {/* Previous */}
         <div className="w-16 text-center">
           <span className="font-mono tabular text-xs text-[var(--text-tertiary)]">
-            {hasPrev ? `${previousWeight}×${previousReps}` : '—'}
+            {hasPrev ? `${previousWeight}\u00D7${previousReps}` : '\u2014'}
           </span>
         </div>
 
@@ -127,11 +127,15 @@ export function SetRow({
             type="button"
             onClick={set.isLogged ? () => onUncomplete(exerciseIdx, setIdx) : handleLog}
             className={[
-              'w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200',
+              'w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200',
               set.isLogged
-                ? 'bg-[var(--accent)] text-[var(--accent-on)]'
-                : 'border-2 border-[var(--border)] text-[var(--text-tertiary)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
+                ? 'text-[var(--on-primary)]'
+                : 'border-2 border-[var(--glass-border)] text-[var(--text-tertiary)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
             ].join(' ')}
+            style={set.isLogged ? {
+              background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+              boxShadow: '0 4px 16px rgba(79, 124, 255, 0.25)',
+            } : undefined}
           >
             <Check size={16} strokeWidth={3} />
           </button>
@@ -147,7 +151,7 @@ export function SetRow({
             exit={{ opacity: 0, scale: 0.8 }}
             className="mt-1 flex justify-end"
           >
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.05em] px-2.5 py-1 rounded-full bg-[var(--gold-muted)] text-[var(--gold)]">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-[var(--gold-surface)] text-[var(--gold)]">
               New PR
             </span>
           </motion.div>

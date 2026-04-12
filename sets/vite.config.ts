@@ -16,8 +16,8 @@ export default defineConfig({
         name: 'SETS',
         short_name: 'SETS',
         description: 'Track your workouts',
-        theme_color: '#BEF264',
-        background_color: '#0A0A0B',
+        theme_color: '#090E18',
+        background_color: '#090E18',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

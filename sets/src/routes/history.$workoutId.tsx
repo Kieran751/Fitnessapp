@@ -66,8 +66,8 @@ function WorkoutDetailPage() {
     return (
       <div className="flex flex-col min-h-full px-4 pt-safe">
         <div className="pt-6 pb-2 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]" />
-          <div className="h-7 w-32 rounded-lg bg-[var(--bg-surface)]" />
+          <div className="w-9 h-9 rounded-xl bg-[var(--glass)] border border-[var(--glass-border)]" />
+          <div className="h-7 w-32 rounded-lg bg-[var(--glass)]" />
         </div>
       </div>
     )
@@ -81,7 +81,7 @@ function WorkoutDetailPage() {
             <button
               type="button"
               onClick={() => navigate({ to: '/history' })}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)]"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-secondary)]"
             >
               <ArrowLeft size={18} />
             </button>
@@ -99,7 +99,7 @@ function WorkoutDetailPage() {
       : null
 
   return (
-    <div className="flex flex-col min-h-full px-4 pt-safe pb-8">
+    <div className="flex flex-col min-h-full px-4 pt-safe pb-28">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -111,7 +111,7 @@ function WorkoutDetailPage() {
           <button
             type="button"
             onClick={() => navigate({ to: '/history' })}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150"
           >
             <ArrowLeft size={18} />
           </button>
@@ -119,7 +119,7 @@ function WorkoutDetailPage() {
         <div className="flex-1 min-w-0">
           <h1
             className="text-3xl font-bold text-[var(--text-primary)] truncate"
-            style={{ letterSpacing: '-0.03em' }}
+            style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.03em' }}
           >
             {workout.name}
           </h1>
@@ -139,13 +139,19 @@ function WorkoutDetailPage() {
         className="grid grid-cols-3 gap-2.5 mt-4"
       >
         {duration && (
-          <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl p-4 flex flex-col gap-2">
+          <div
+            className="rounded-2xl p-4 flex flex-col gap-2 border border-[var(--glass-border)]"
+            style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+          >
             <Clock size={12} className="text-[var(--text-tertiary)]" />
             <p className="font-mono tabular text-lg font-bold text-[var(--text-primary)]">{duration}</p>
             <p className="label-caption">Duration</p>
           </div>
         )}
-        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl p-4 flex flex-col gap-2">
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-2 border border-[var(--glass-border)]"
+          style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+        >
           <Dumbbell size={12} className="text-[var(--text-tertiary)]" />
           <p className="font-mono tabular text-lg font-bold text-[var(--text-primary)]">
             {formatVolume(totalVolume, settings.units)}
@@ -153,10 +159,13 @@ function WorkoutDetailPage() {
           <p className="label-caption">Volume</p>
         </div>
         {prCount > 0 && (
-          <div className="bg-[var(--gold-muted)] border border-[var(--gold)]/30 rounded-2xl p-4 flex flex-col gap-2">
+          <div
+            className="rounded-2xl p-4 flex flex-col gap-2 border border-[var(--gold)]/30"
+            style={{ background: 'var(--gold-surface)' }}
+          >
             <Trophy size={12} className="text-[var(--gold)]" />
             <p className="font-mono tabular text-lg font-bold text-[var(--gold)]">{prCount}</p>
-            <p className="label-caption !text-[var(--gold)]/80">PRs</p>
+            <p className="label-caption" style={{ color: 'var(--gold)' }}>PRs</p>
           </div>
         )}
       </motion.div>
@@ -171,9 +180,10 @@ function WorkoutDetailPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.15 + groupIdx * 0.04 }}
-              className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden"
+              className="rounded-3xl overflow-hidden border border-[var(--glass-border)]"
+              style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
             >
-              <div className="px-5 py-4 border-b border-[var(--border-subtle)]">
+              <div className="px-5 py-4 border-b border-[var(--glass-border)]">
                 <p className="text-lg font-semibold text-[var(--text-primary)] tracking-tight">
                   {exercise?.name ?? 'Unknown Exercise'}
                 </p>
@@ -182,7 +192,7 @@ function WorkoutDetailPage() {
                 )}
               </div>
 
-              <div className="divide-y divide-[var(--border-subtle)]">
+              <div className="divide-y divide-[var(--glass-border)]">
                 {/* Header row */}
                 <div className="grid grid-cols-[32px_1fr_1fr_1fr] gap-2 px-5 py-2.5">
                   <span className="label-caption">Set</span>
@@ -197,17 +207,17 @@ function WorkoutDetailPage() {
                       key={set.id}
                       className={[
                         'grid grid-cols-[32px_1fr_1fr_1fr] gap-2 px-5 py-3 items-center',
-                        isPR ? 'bg-[var(--gold-muted)]' : '',
+                        isPR ? 'bg-[var(--gold-surface)]' : '',
                       ].join(' ')}
                     >
                       <span className="font-mono tabular text-sm font-semibold text-[var(--text-secondary)]">
                         {set.setNumber}
                       </span>
                       <span className="text-xs text-[var(--text-tertiary)]">
-                        {set.setType !== 'normal' ? SET_TYPE_LABEL[set.setType] || set.setType : '—'}
+                        {set.setType !== 'normal' ? SET_TYPE_LABEL[set.setType] || set.setType : '\u2014'}
                       </span>
                       <span className="font-mono tabular text-sm font-bold text-[var(--text-primary)] text-right">
-                        {set.weight > 0 ? set.weight : '—'}
+                        {set.weight > 0 ? set.weight : '\u2014'}
                       </span>
                       <div className="flex items-center justify-end gap-1.5">
                         <span className="font-mono tabular text-sm font-bold text-[var(--text-primary)]">

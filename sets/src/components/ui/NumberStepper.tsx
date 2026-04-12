@@ -48,9 +48,9 @@ export function NumberStepper({
             onClick={decrement}
             disabled={!canDecrement}
             className={[
-              'min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] transition-colors duration-150',
+              'min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] backdrop-blur-[12px] transition-all duration-150',
               canDecrement
-                ? 'text-[var(--text-primary)] hover:border-[var(--border-strong)]'
+                ? 'text-[var(--text-primary)] hover:bg-[var(--glass-hover)]'
                 : 'text-[var(--text-tertiary)] cursor-not-allowed opacity-40',
             ].join(' ')}
           >
@@ -76,9 +76,9 @@ export function NumberStepper({
             onClick={increment}
             disabled={!canIncrement}
             className={[
-              'min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] transition-colors duration-150',
+              'min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] backdrop-blur-[12px] transition-all duration-150',
               canIncrement
-                ? 'text-[var(--accent)] hover:border-[var(--accent)]'
+                ? 'text-[var(--accent)] hover:bg-[var(--primary-surface)]'
                 : 'text-[var(--text-tertiary)] cursor-not-allowed opacity-40',
             ].join(' ')}
           >

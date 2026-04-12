@@ -21,7 +21,12 @@ export function Modal({ isOpen, onClose, title, children, fullScreen = false }: 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[8px]"
+            className="fixed inset-0 z-50"
+            style={{
+              background: 'rgba(9, 14, 24, 0.8)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+            }}
             onClick={onClose}
           />
 
@@ -32,26 +37,29 @@ export function Modal({ isOpen, onClose, title, children, fullScreen = false }: 
             exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', stiffness: 350, damping: 35 }}
             className={[
-              'fixed z-50 bg-[var(--bg-overlay)] border border-[var(--border)] left-0 right-0 bottom-0',
+              'fixed z-50 bg-[var(--bg-elevated)] border border-[var(--glass-border)] left-0 right-0 bottom-0',
               fullScreen
                 ? 'top-0 rounded-none'
-                : 'rounded-t-3xl max-h-[90dvh]',
+                : 'rounded-t-[28px] max-h-[90dvh]',
             ].join(' ')}
           >
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+            <div className="flex items-center justify-between px-7 pt-7 pb-4">
               {title && (
-                <h2 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
+                <h2
+                  className="text-xl font-semibold text-[var(--text-primary)] tracking-tight"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
                   {title}
                 </h2>
               )}
               <button
                 onClick={onClose}
-                className="ml-auto flex items-center justify-center w-9 h-9 rounded-xl text-[var(--text-tertiary)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] transition-colors duration-150"
+                className="ml-auto flex items-center justify-center w-9 h-9 rounded-xl text-[var(--text-tertiary)] hover:bg-[var(--glass)] hover:text-[var(--text-primary)] transition-colors duration-150"
               >
                 <X size={18} />
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(90dvh-80px)] px-6 pb-6">
+            <div className="overflow-y-auto max-h-[calc(90dvh-80px)] px-7 pb-7">
               {children}
             </div>
           </motion.div>

@@ -24,8 +24,10 @@ function RootLayout() {
 
   return (
     <div className="flex flex-col min-h-dvh bg-[var(--bg-primary)]">
+      <div className="bloom-primary" aria-hidden="true" />
+      <div className="bloom-secondary" aria-hidden="true" />
       <motion.main
-        className="flex-1 pb-20"
+        className="flex-1 pb-20 relative z-1"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}

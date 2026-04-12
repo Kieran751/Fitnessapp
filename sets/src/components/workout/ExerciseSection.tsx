@@ -27,7 +27,10 @@ export function ExerciseSection({
   const totalSets = exercise.sets.length
 
   return (
-    <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden">
+    <div
+      className="rounded-3xl overflow-hidden border border-[var(--glass-border)]"
+      style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+    >
       {/* Exercise header */}
       <button
         type="button"
@@ -66,7 +69,7 @@ export function ExerciseSection({
             style={{ overflow: 'hidden' }}
           >
             {/* Column headers */}
-            <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-t border-[var(--border-subtle)]">
+            <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-t border-[var(--glass-border)]">
               <span className="w-9 text-center label-caption">Set</span>
               <span className="w-16 text-center label-caption">Prev</span>
               <span className="flex-1 text-center label-caption">{settings.units}</span>
@@ -102,7 +105,7 @@ export function ExerciseSection({
             <button
               type="button"
               onClick={() => onAddSet(exerciseIdx)}
-              className="w-full flex items-center justify-center gap-1.5 h-11 text-xs font-semibold uppercase tracking-[0.05em] text-[var(--text-tertiary)] hover:text-[var(--accent)] border-t border-[var(--border-subtle)] transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 h-11 text-xs font-semibold uppercase tracking-[0.05em] text-[var(--text-tertiary)] hover:text-[var(--accent)] border-t border-[var(--glass-border)] transition-colors"
             >
               <Plus size={14} />
               Add Set

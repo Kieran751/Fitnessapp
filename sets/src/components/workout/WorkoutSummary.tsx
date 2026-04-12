@@ -36,12 +36,19 @@ export function WorkoutSummary() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.2 }}
-            className="w-20 h-20 rounded-full bg-[var(--accent)] flex items-center justify-center shadow-[0_0_40px_rgba(190,242,100,0.35)]"
+            className="w-20 h-20 rounded-full flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+              boxShadow: '0 0 40px rgba(79, 124, 255, 0.35)',
+            }}
           >
-            <Check size={36} className="text-[var(--accent-on)]" strokeWidth={3.5} />
+            <Check size={36} className="text-[var(--on-primary)]" strokeWidth={3.5} />
           </motion.div>
           <div>
-            <h1 className="text-3xl font-bold text-[var(--text-primary)] tracking-tight">
+            <h1
+              className="text-3xl font-bold text-[var(--text-primary)] tracking-tight"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
               Workout Complete
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">{summary.workoutName}</p>
@@ -78,17 +85,17 @@ export function WorkoutSummary() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="!border-[var(--gold)]/30 !bg-[var(--gold-muted)]">
+            <Card className="!border-[var(--gold)]/30 !bg-[var(--gold-surface)]">
               <div className="flex items-center gap-2 mb-4">
                 <Trophy size={16} className="text-[var(--gold)]" />
-                <span className="label-caption !text-[var(--gold)]">New PR</span>
+                <span className="label-caption" style={{ color: 'var(--gold)' }}>New PR</span>
               </div>
               <div className="flex flex-col gap-2.5">
                 {summary.prs.map((pr, i) => (
                   <div key={i} className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[var(--text-primary)]">{pr.exerciseName}</span>
                     <span className="font-mono tabular text-sm font-bold text-[var(--gold)]">
-                      {pr.type} · {pr.value}kg
+                      {pr.type} &middot; {pr.value}kg
                     </span>
                   </div>
                 ))}
@@ -121,7 +128,7 @@ export function WorkoutSummary() {
                       >
                         <span className="w-5 font-mono tabular text-[var(--text-tertiary)]">{si + 1}</span>
                         <span className="font-mono tabular text-[var(--text-primary)]">
-                          {s.weight}kg × {s.reps} reps
+                          {s.weight}kg &times; {s.reps} reps
                         </span>
                         {s.isPR && (
                           <span className="ml-auto text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--gold)]">

@@ -21,11 +21,12 @@ export function Input({ label, error, className = '', id, ...props }: InputProps
       <input
         id={inputId}
         className={[
-          'h-12 px-4 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-tertiary)] outline-none transition-colors duration-150',
-          'focus:border-[var(--accent)] focus-visible:[box-shadow:0_0_0_3px_var(--accent-ring)]',
+          'h-[52px] px-4 py-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--glass-border)] text-[var(--text-primary)] font-medium placeholder:text-[var(--text-tertiary)] outline-none transition-all duration-150',
+          'focus:border-[var(--accent)] focus:[box-shadow:0_0_0_3px_var(--primary-glow)]',
           error ? 'border-[var(--danger)]' : '',
           className,
         ].join(' ')}
+        style={{ fontFamily: "'Manrope', sans-serif" }}
         {...props}
       />
       {error && (

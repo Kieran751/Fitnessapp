@@ -1,5 +1,4 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { motion } from 'framer-motion'
 import { LayoutDashboard, BookMarked, TrendingUp, History } from 'lucide-react'
 
 const tabs = [
@@ -14,8 +13,15 @@ export function BottomNav() {
   const pathname = routerState.location.pathname
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-surface)]/95 backdrop-blur-xl border-t border-[var(--border-subtle)] pb-safe">
-      <div className="flex items-stretch h-[64px]">
+    <nav className="fixed bottom-3 left-4 right-4 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+      <div
+        className="flex items-stretch h-[64px] rounded-3xl border border-[var(--glass-border)]"
+        style={{
+          background: 'rgba(15, 23, 41, 0.8)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+        }}
+      >
         {tabs.map(({ to, label, icon: Icon }) => {
           const isActive = to === '/' ? pathname === '/' : pathname.startsWith(to)
 
@@ -27,26 +33,25 @@ export function BottomNav() {
             >
               <div className="relative flex items-center justify-center w-11 h-8">
                 {isActive && (
-                  <motion.div
-                    layoutId="nav-pill"
-                    className="absolute inset-0 rounded-full bg-[var(--accent-muted)]"
-                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  <div
+                    className="absolute inset-0 rounded-full bg-[var(--primary-surface)]"
                   />
                 )}
                 <Icon
                   size={20}
                   strokeWidth={isActive ? 2.25 : 1.75}
                   className={[
-                    'relative z-10 transition-colors',
+                    'relative z-10 transition-colors duration-150',
                     isActive ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]',
                   ].join(' ')}
                 />
               </div>
               <span
                 className={[
-                  'text-[10px] font-semibold tracking-wide transition-colors',
+                  'text-[10px] font-semibold tracking-wide transition-colors duration-150',
                   isActive ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]',
                 ].join(' ')}
+                style={{ fontFamily: "'Manrope', sans-serif" }}
               >
                 {label}
               </span>
