@@ -50,7 +50,8 @@ export function SetRow({
   }
 
   const hasPrev = previousWeight !== undefined && previousReps !== undefined
-  const weightStep = unit === 'lbs' ? 5 : 2.5
+  const weightStep = 1
+  const weightFastStep = unit === 'lbs' ? 10 : 5
 
   return (
     <motion.div
@@ -82,14 +83,14 @@ export function SetRow({
         </button>
 
         {/* Previous */}
-        <div className="w-16 text-center">
+        <div style={{ width: 44, flexShrink: 0 }} className="text-center">
           <span className="font-mono tabular text-xs text-[var(--text-tertiary)]">
             {hasPrev ? `${previousWeight}\u00D7${previousReps}` : '\u2014'}
           </span>
         </div>
 
         {/* Weight */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {set.isLogged ? (
             <p className="text-center font-mono tabular font-semibold text-sm text-[var(--text-primary)]">
               {set.weight}
@@ -99,14 +100,16 @@ export function SetRow({
               value={set.weight}
               onChange={v => onUpdate(exerciseIdx, setIdx, { weight: v })}
               step={weightStep}
+              fastStep={weightFastStep}
               min={0}
               unit={unit}
+              compact
             />
           )}
         </div>
 
         {/* Reps */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {set.isLogged ? (
             <p className="text-center font-mono tabular font-semibold text-sm text-[var(--text-primary)]">
               {set.reps}
@@ -117,12 +120,13 @@ export function SetRow({
               onChange={v => onUpdate(exerciseIdx, setIdx, { reps: v })}
               step={1}
               min={1}
+              compact
             />
           )}
         </div>
 
         {/* Log / check button */}
-        <motion.div whileTap={{ scale: 0.9 }}>
+        <motion.div whileTap={{ scale: 0.9 }} style={{ flexShrink: 0 }}>
           <button
             type="button"
             onClick={set.isLogged ? () => onUncomplete(exerciseIdx, setIdx) : handleLog}
