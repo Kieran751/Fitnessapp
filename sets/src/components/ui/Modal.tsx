@@ -21,11 +21,11 @@ export function Modal({ isOpen, onClose, title, children, fullScreen = false }: 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50"
+            className="fixed inset-0 z-[60]"
             style={{
-              background: 'rgba(9, 14, 24, 0.8)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
+              background: 'rgba(9, 14, 24, 0.75)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
             }}
             onClick={onClose}
           />
@@ -37,10 +37,10 @@ export function Modal({ isOpen, onClose, title, children, fullScreen = false }: 
             exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', stiffness: 350, damping: 35 }}
             className={[
-              'fixed z-50 bg-[var(--bg-elevated)] border border-[var(--glass-border)] left-0 right-0 bottom-0',
+              'fixed z-[61] bg-[var(--bg-elevated)] border border-[var(--glass-border)] left-0 right-0 bottom-0',
               fullScreen
                 ? 'top-0 rounded-none'
-                : 'rounded-t-[28px] max-h-[90dvh]',
+                : 'rounded-t-[28px] max-h-[90dvh] pb-safe',
             ].join(' ')}
           >
             <div className="flex items-center justify-between px-7 pt-7 pb-4">
@@ -59,7 +59,7 @@ export function Modal({ isOpen, onClose, title, children, fullScreen = false }: 
                 <X size={18} />
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(90dvh-80px)] px-7 pb-7">
+            <div className="overflow-y-auto max-h-[calc(90dvh-80px)] px-7 pb-10">
               {children}
             </div>
           </motion.div>
