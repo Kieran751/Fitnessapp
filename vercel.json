@@ -1,0 +1,8 @@
+{
+  "buildCommand": "cd sets && npm install --legacy-peer-deps && npm run build",
+  "outputDirectory": "sets/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
