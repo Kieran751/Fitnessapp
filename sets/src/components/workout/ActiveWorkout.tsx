@@ -109,9 +109,15 @@ export function ActiveWorkout() {
       <div className="flex-1 overflow-y-auto px-4 py-4 pb-40 flex flex-col gap-3">
         {session.exercises.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-20">
-            <div className="w-20 h-20 rounded-3xl bg-[var(--primary-surface)] flex items-center justify-center mb-5">
-              <Plus size={32} className="text-[var(--accent)]" strokeWidth={1.75} />
-            </div>
+            <motion.div whileTap={{ scale: 0.93 }} whileHover={{ scale: 1.08 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+              <button
+                type="button"
+                onClick={() => setShowPicker(true)}
+                className="w-20 h-20 rounded-3xl bg-[var(--primary-surface)] flex items-center justify-center mb-5 hover:brightness-150 transition-all cursor-pointer"
+              >
+                <Plus size={32} className="text-[var(--accent)]" strokeWidth={1.75} />
+              </button>
+            </motion.div>
             <p
               className="font-semibold text-[var(--text-primary)]"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
