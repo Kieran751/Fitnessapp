@@ -8,7 +8,8 @@ import {
   type WorkoutExerciseState,
   type PRRecord,
 } from '../store/atoms'
-import { db, type Exercise, type Template } from '../db'
+import { type Exercise, type Template } from '../db'
+import { supabase } from '../lib/supabase'
 import { checkForPR } from '../lib/pr'
 import { fetchPreviousSets } from './usePreviousSession'
 
@@ -49,10 +50,16 @@ export function useWorkout() {
   const settings = useAtomValue(settingsAtom)
 
   async function startFreestyle() {
-    const workoutId = (await db.workouts.add({
-      name: 'Freestyle Workout',
-      startedAt: new Date(),
-    })) as number
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user!.id
+
+    const { data } = await supabase
+      .from('workouts')
+      .insert({ name: 'Freestyle Workout', startedAt: new Date(), userId })
+      .select()
+      .single()
+
+    const workoutId = data!.id as number
 
     setSession({
       workoutId,
@@ -63,20 +70,30 @@ export function useWorkout() {
   }
 
   async function startFromTemplate(template: Template) {
-    const workoutId = (await db.workouts.add({
-      name: template.name,
-      startedAt: new Date(),
-      templateId: template.id,
-    })) as number
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user!.id
+
+    const { data } = await supabase
+      .from('workouts')
+      .insert({ name: template.name, startedAt: new Date(), templateId: template.id, userId })
+      .select()
+      .single()
+
+    const workoutId = data!.id as number
 
     const exercises: WorkoutExerciseState[] = []
     for (const te of template.exercises) {
-      const exercise = await db.exercises.get(te.exerciseId)
+      const { data: exercise } = await supabase
+        .from('exercises')
+        .select('*')
+        .eq('id', te.exerciseId)
+        .single()
+
       if (!exercise) continue
       exercises.push(
         await buildExerciseState(
           te.exerciseId,
-          exercise,
+          exercise as Exercise,
           te.targetSets,
           te.targetReps,
           te.restSeconds,
@@ -115,20 +132,30 @@ export function useWorkout() {
     const ex = session.exercises[exerciseIdx]
     const set = ex.sets[setIdx]
 
-    const setId = (await db.sets.add({
-      workoutId: session.workoutId,
-      exerciseId: ex.exerciseId,
-      setNumber: set.setNumber,
-      weight: set.weight,
-      reps: set.reps,
-      setType: set.setType,
-      timestamp: new Date(),
-    })) as number
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user!.id
+
+    const { data: insertedSet } = await supabase
+      .from('sets')
+      .insert({
+        workoutId: session.workoutId,
+        exerciseId: ex.exerciseId,
+        setNumber: set.setNumber,
+        weight: set.weight,
+        reps: set.reps,
+        setType: set.setType,
+        timestamp: new Date(),
+        userId,
+      })
+      .select()
+      .single()
+
+    const setId = insertedSet!.id as number
 
     navigator.vibrate?.(50)
 
     const { isPR } = set.weight > 0
-      ? await checkForPR(ex.exerciseId, set.weight, set.reps, session.workoutId, setId)
+      ? await checkForPR(ex.exerciseId, set.weight, set.reps, session.workoutId, setId, userId)
       : { isPR: false }
 
     if (isPR) navigator.vibrate?.([50, 30, 50, 30, 100])
@@ -199,9 +226,11 @@ export function useWorkout() {
     })
   }
 
-  function renameWorkout(name: string) {
+  async function renameWorkout(name: string) {
     setSession(prev => prev ? { ...prev, workoutName: name } : prev)
-    if (session) db.workouts.update(session.workoutId, { name })
+    if (session) {
+      await supabase.from('workouts').update({ name }).eq('id', session.workoutId)
+    }
   }
 
   function uncompleteSet(exerciseIdx: number, setIdx: number) {
@@ -221,7 +250,7 @@ export function useWorkout() {
   async function finishWorkout() {
     if (!session) return
     const completedAt = new Date()
-    await db.workouts.update(session.workoutId, { completedAt, name: session.workoutName })
+    await supabase.from('workouts').update({ completedAt, name: session.workoutName }).eq('id', session.workoutId)
 
     const prs: PRRecord[] = []
     for (const ex of session.exercises) {
@@ -244,9 +273,8 @@ export function useWorkout() {
 
   async function cancelWorkout() {
     if (!session) return
-    await db.workouts.delete(session.workoutId)
-    // Also delete any saved sets
-    await db.sets.where('workoutId').equals(session.workoutId).delete()
+    await supabase.from('sets').delete().eq('workoutId', session.workoutId)
+    await supabase.from('workouts').delete().eq('id', session.workoutId)
     setSession(null)
     setRestTimer(t => ({ ...t, isActive: false }))
   }

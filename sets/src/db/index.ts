@@ -1,5 +1,3 @@
-import Dexie, { type Table } from 'dexie'
-
 export interface Exercise {
   id?: number
   name: string
@@ -57,26 +55,3 @@ export interface PersonalRecord {
   workoutId: number
   setId: number
 }
-
-export class SetsDatabase extends Dexie {
-  exercises!: Table<Exercise>
-  templates!: Table<Template>
-  workouts!: Table<Workout>
-  sets!: Table<WorkoutSet>
-  bodyWeights!: Table<BodyWeight>
-  personalRecords!: Table<PersonalRecord>
-
-  constructor() {
-    super('SetsDB')
-    this.version(1).stores({
-      exercises: '++id, name, muscleGroup, equipment',
-      templates: '++id, name',
-      workouts: '++id, templateId, startedAt',
-      sets: '++id, workoutId, exerciseId, timestamp',
-      bodyWeights: '++id, date',
-      personalRecords: '++id, exerciseId, type',
-    })
-  }
-}
-
-export const db = new SetsDatabase()

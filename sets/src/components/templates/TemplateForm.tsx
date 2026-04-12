@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { AnimatePresence, motion, Reorder } from 'framer-motion'
 import { GripVertical, Trash2, Plus, ChevronDown } from 'lucide-react'
-import { db, type Template, type Exercise } from '../../db'
+import { type Template, type Exercise } from '../../db'
+import { supabase } from '../../lib/supabase'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { NumberStepper } from '../ui/NumberStepper'
@@ -39,12 +40,16 @@ export function TemplateForm({ isOpen, onClose, onSaved, template }: TemplateFor
       // Load exercises from DB
       Promise.all(
         template.exercises.map(async te => {
-          const ex = await db.exercises.get(te.exerciseId)
+          const { data: ex } = await supabase
+            .from('exercises')
+            .select('*')
+            .eq('id', te.exerciseId)
+            .single()
           if (!ex) return null
           return {
             id: crypto.randomUUID(),
             exerciseId: te.exerciseId,
-            exercise: ex,
+            exercise: ex as Exercise,
             targetSets: te.targetSets,
             targetReps: te.targetReps,
             restSeconds: te.restSeconds,
@@ -86,22 +91,34 @@ export function TemplateForm({ isOpen, onClose, onSaved, template }: TemplateFor
     if (!name.trim()) { setNameError('Name is required'); return }
     if (exercises.length === 0) return
 
-    const data: Omit<Template, 'id'> = {
-      name: name.trim(),
-      exercises: exercises.map(r => ({
-        exerciseId: r.exerciseId,
-        targetSets: r.targetSets,
-        targetReps: r.targetReps,
-        restSeconds: r.restSeconds,
-      })),
-      createdAt: template?.createdAt ?? new Date(),
-      updatedAt: new Date(),
-    }
+    const exerciseData = exercises.map(r => ({
+      exerciseId: r.exerciseId,
+      targetSets: r.targetSets,
+      targetReps: r.targetReps,
+      restSeconds: r.restSeconds,
+    }))
 
     if (isEditing && template?.id !== undefined) {
-      await db.templates.update(template.id, data)
+      await supabase
+        .from('templates')
+        .update({
+          name: name.trim(),
+          exercises: exerciseData,
+          updatedAt: new Date(),
+        })
+        .eq('id', template.id)
     } else {
-      await db.templates.add(data)
+      const { data: { user } } = await supabase.auth.getUser()
+      const userId = user!.id
+      await supabase
+        .from('templates')
+        .insert({
+          name: name.trim(),
+          exercises: exerciseData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userId,
+        })
     }
     onSaved()
     onClose()

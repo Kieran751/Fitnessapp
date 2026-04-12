@@ -1,6 +1,7 @@
-import { useLiveQuery } from 'dexie-react-hooks'
 import { BarChart3 } from 'lucide-react'
-import { db } from '../../db'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../lib/supabase'
+import type { Workout, WorkoutSet, Exercise } from '../../db'
 
 function getWeekBounds() {
   const now = new Date()
@@ -36,7 +37,7 @@ type IntensityLevel = 'none' | 'secondary' | 'primary'
 
 // Each overlay: cx/cy as % of image width/height, rx/ry as % of image width/height
 const OVERLAYS: Record<string, { cx: number; cy: number; rx: number; ry: number }> = {
-  // ── Front figure (left half of image) ──────────────────────────
+  // -- Front figure (left half of image) --
   'delt-l':   { cx: 11,  cy: 25,  rx: 5,  ry: 5  },
   'delt-r':   { cx: 38,  cy: 25,  rx: 5,  ry: 5  },
   'chest-l':  { cx: 20,  cy: 33,  rx: 6,  ry: 7  },
@@ -51,7 +52,7 @@ const OVERLAYS: Record<string, { cx: number; cy: number; rx: number; ry: number 
   'calf-fl':  { cx: 21,  cy: 86,  rx: 3,  ry: 5  },
   'calf-fr':  { cx: 29,  cy: 86,  rx: 3,  ry: 5  },
 
-  // ── Back figure (right half of image) ──────────────────────────
+  // -- Back figure (right half of image) --
   'traps':        { cx: 75,  cy: 23,  rx: 8,  ry: 4  },
   'rear-delt-l':  { cx: 62,  cy: 26,  rx: 5,  ry: 5  },
   'rear-delt-r':  { cx: 88,  cy: 26,  rx: 5,  ry: 5  },
@@ -71,30 +72,42 @@ const OVERLAYS: Record<string, { cx: number; cy: number; rx: number; ry: number 
 export function MuscleHeatmap() {
   const { monday, sunday } = getWeekBounds()
 
-  const muscleData = useLiveQuery(async () => {
-    const workouts = await db.workouts
-      .filter(w =>
-        w.completedAt != null &&
-        new Date(w.startedAt) >= monday &&
-        new Date(w.startedAt) <= sunday
-      ).toArray()
+  const [groupCounts, setGroupCounts] = useState<Record<string, number>>({})
 
-    const workoutIds = workouts.map(w => w.id).filter((id): id is number => id != null)
-    if (workoutIds.length === 0) return {} as Record<string, number>
+  useEffect(() => {
+    async function load() {
+      const { data: workoutsData } = await supabase
+        .from('workouts')
+        .select('*')
+        .not('completedAt', 'is', null)
+        .gte('startedAt', monday.toISOString())
+        .lte('startedAt', sunday.toISOString())
 
-    const sets = await db.sets.filter(s => workoutIds.includes(s.workoutId)).toArray()
-    const exercises = await db.exercises.toArray()
-    const exerciseMap = new Map(exercises.map(e => [e.id, e]))
+      const workouts = (workoutsData ?? []) as Workout[]
+      const workoutIds = workouts.map(w => w.id).filter((id): id is number => id != null)
+      if (workoutIds.length === 0) { setGroupCounts({}); return }
 
-    const groupCounts: Record<string, number> = {}
-    for (const s of sets) {
-      const ex = exerciseMap.get(s.exerciseId)
-      if (ex) groupCounts[ex.muscleGroup] = (groupCounts[ex.muscleGroup] ?? 0) + 1
+      const { data: setsData } = await supabase
+        .from('sets')
+        .select('*')
+        .in('workoutId', workoutIds)
+
+      const sets = (setsData ?? []) as WorkoutSet[]
+
+      const { data: exercisesData } = await supabase.from('exercises').select('*')
+      const exercises = (exercisesData ?? []) as Exercise[]
+      const exerciseMap = new Map(exercises.map(e => [e.id, e]))
+
+      const counts: Record<string, number> = {}
+      for (const s of sets) {
+        const ex = exerciseMap.get(s.exerciseId)
+        if (ex) counts[ex.muscleGroup] = (counts[ex.muscleGroup] ?? 0) + 1
+      }
+      setGroupCounts(counts)
     }
-    return groupCounts
+    load()
   }, [monday.getTime(), sunday.getTime()])
 
-  const groupCounts = muscleData ?? {}
   const maxCount = Math.max(...Object.values(groupCounts).filter(c => c > 0), 0)
 
   const levels: Record<string, IntensityLevel> = {}

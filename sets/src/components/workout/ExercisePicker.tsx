@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Search, X, Plus, ChevronRight } from 'lucide-react'
-import { db, type Exercise } from '../../db'
+import { type Exercise } from '../../db'
+import { supabase } from '../../lib/supabase'
 import { Input } from '../ui/Input'
 import { Button } from '../ui/Button'
 
@@ -30,7 +31,9 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
 
   useEffect(() => {
     if (isOpen) {
-      db.exercises.toArray().then(setExercises)
+      supabase.from('exercises').select('*').then(({ data }) => {
+        setExercises((data ?? []) as Exercise[])
+      })
       setTimeout(() => searchRef.current?.focus(), 400)
     } else {
       setSearch('')
@@ -54,15 +57,27 @@ export function ExercisePicker({ isOpen, onClose, onSelect }: ExercisePickerProp
 
   async function handleAddCustom() {
     if (!customName.trim()) return
-    const exercise: Exercise = {
+
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user!.id
+
+    const exercise: Omit<Exercise, 'id'> = {
       name: customName.trim(),
       muscleGroup: customMuscle,
       secondaryMuscles: [],
       equipment: customEquipment,
       isCustom: true,
     }
-    const id = (await db.exercises.add(exercise)) as number
-    onSelect({ ...exercise, id })
+
+    const { data } = await supabase
+      .from('exercises')
+      .insert({ ...exercise, userId })
+      .select()
+      .single()
+
+    if (data) {
+      onSelect(data as Exercise)
+    }
     onClose()
   }
 

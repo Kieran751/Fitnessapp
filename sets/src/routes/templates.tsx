@@ -6,7 +6,8 @@ import { TemplateCard } from '../components/templates/TemplateCard'
 import { TemplateForm } from '../components/templates/TemplateForm'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
-import { db, type Template } from '../db'
+import { type Template } from '../db'
+import { supabase } from '../lib/supabase'
 import { useWorkout } from '../hooks/useWorkout'
 
 export const Route = createFileRoute('/templates')({
@@ -20,13 +21,15 @@ function TemplatesPage() {
   const { startFromTemplate } = useWorkout()
 
   function refresh() {
-    db.templates.toArray().then(setTemplates)
+    supabase.from('templates').select('*').then(({ data }) => {
+      setTemplates((data ?? []) as Template[])
+    })
   }
 
   useEffect(() => { refresh() }, [])
 
   async function handleDelete(id: number) {
-    await db.templates.delete(id)
+    await supabase.from('templates').delete().eq('id', id)
     refresh()
   }
 

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import {
-  Scale, Timer, Moon, Download, Upload, Trash2,
+  Scale, Timer, Moon, Download, Upload, Trash2, LogOut,
 } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useRef, useState } from 'react'
@@ -9,8 +9,8 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
 import { settingsAtom } from '../store/atoms'
-import { db } from '../db'
-import { exerciseSeeds } from '../data/exercises'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
 
 export const Route = createFileRoute('/settings')({
@@ -31,6 +31,7 @@ interface BackupData {
 function SettingsPage() {
   const [settings, setSettings] = useAtom(settingsAtom)
   const navigate = useNavigate()
+  const { signOut } = useAuth()
   const { show: showToast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -53,25 +54,31 @@ function SettingsPage() {
 
   async function handleExport() {
     try {
-      const [exercises, templates, workouts, sets, bodyWeights, personalRecords] =
-        await Promise.all([
-          db.exercises.toArray(),
-          db.templates.toArray(),
-          db.workouts.toArray(),
-          db.sets.toArray(),
-          db.bodyWeights.toArray(),
-          db.personalRecords.toArray(),
-        ])
+      const [
+        { data: exercises },
+        { data: templates },
+        { data: workouts },
+        { data: sets },
+        { data: bodyWeights },
+        { data: personalRecords },
+      ] = await Promise.all([
+        supabase.from('exercises').select('*'),
+        supabase.from('templates').select('*'),
+        supabase.from('workouts').select('*'),
+        supabase.from('sets').select('*'),
+        supabase.from('body_weights').select('*'),
+        supabase.from('personal_records').select('*'),
+      ])
 
       const backup: BackupData = {
         format: 'sets-backup-v1',
         exportedAt: new Date().toISOString(),
-        exercises,
-        templates,
-        workouts,
-        sets,
-        bodyWeights,
-        personalRecords,
+        exercises: exercises ?? [],
+        templates: templates ?? [],
+        workouts: workouts ?? [],
+        sets: sets ?? [],
+        bodyWeights: bodyWeights ?? [],
+        personalRecords: personalRecords ?? [],
       }
 
       const json = JSON.stringify(backup, null, 2)
@@ -116,14 +123,31 @@ function SettingsPage() {
   async function handleImportConfirm() {
     if (!importData) return
     try {
-      await db.transaction('rw', [db.exercises, db.templates, db.workouts, db.sets, db.bodyWeights, db.personalRecords], async () => {
-        if (importData.exercises?.length) await db.exercises.bulkPut(importData.exercises as Parameters<typeof db.exercises.bulkPut>[0])
-        if (importData.templates?.length) await db.templates.bulkPut(importData.templates as Parameters<typeof db.templates.bulkPut>[0])
-        if (importData.workouts?.length) await db.workouts.bulkPut(importData.workouts as Parameters<typeof db.workouts.bulkPut>[0])
-        if (importData.sets?.length) await db.sets.bulkPut(importData.sets as Parameters<typeof db.sets.bulkPut>[0])
-        if (importData.bodyWeights?.length) await db.bodyWeights.bulkPut(importData.bodyWeights as Parameters<typeof db.bodyWeights.bulkPut>[0])
-        if (importData.personalRecords?.length) await db.personalRecords.bulkPut(importData.personalRecords as Parameters<typeof db.personalRecords.bulkPut>[0])
-      })
+      const { data: { user } } = await supabase.auth.getUser()
+      const userId = user!.id
+
+      // Upsert data with userId
+      if (importData.templates?.length) {
+        const rows = (importData.templates as Record<string, unknown>[]).map(r => ({ ...r, userId }))
+        await supabase.from('templates').upsert(rows)
+      }
+      if (importData.workouts?.length) {
+        const rows = (importData.workouts as Record<string, unknown>[]).map(r => ({ ...r, userId }))
+        await supabase.from('workouts').upsert(rows)
+      }
+      if (importData.sets?.length) {
+        const rows = (importData.sets as Record<string, unknown>[]).map(r => ({ ...r, userId }))
+        await supabase.from('sets').upsert(rows)
+      }
+      if (importData.bodyWeights?.length) {
+        const rows = (importData.bodyWeights as Record<string, unknown>[]).map(r => ({ ...r, userId }))
+        await supabase.from('body_weights').upsert(rows)
+      }
+      if (importData.personalRecords?.length) {
+        const rows = (importData.personalRecords as Record<string, unknown>[]).map(r => ({ ...r, userId }))
+        await supabase.from('personal_records').upsert(rows)
+      }
+
       setShowImportModal(false)
       setImportData(null)
       showToast('Data imported successfully', 'success')
@@ -135,16 +159,15 @@ function SettingsPage() {
   async function handleClearConfirm() {
     if (clearConfirmText !== 'DELETE') return
     try {
-      await db.transaction('rw', [db.exercises, db.templates, db.workouts, db.sets, db.bodyWeights, db.personalRecords], async () => {
-        await db.exercises.clear()
-        await db.templates.clear()
-        await db.workouts.clear()
-        await db.sets.clear()
-        await db.bodyWeights.clear()
-        await db.personalRecords.clear()
-      })
-      // Re-seed exercises
-      await db.exercises.bulkAdd(exerciseSeeds)
+      const { data: { user } } = await supabase.auth.getUser()
+      const userId = user!.id
+
+      await supabase.from('personal_records').delete().eq('userId', userId)
+      await supabase.from('sets').delete().eq('userId', userId)
+      await supabase.from('workouts').delete().eq('userId', userId)
+      await supabase.from('templates').delete().eq('userId', userId)
+      await supabase.from('body_weights').delete().eq('userId', userId)
+
       setClearStep(0)
       setClearConfirmText('')
       showToast('All data cleared', 'success')
@@ -152,6 +175,11 @@ function SettingsPage() {
     } catch {
       showToast('Failed to clear data', 'error')
     }
+  }
+
+  async function handleSignOut() {
+    await signOut()
+    navigate({ to: '/login' })
   }
 
   return (
@@ -281,6 +309,16 @@ function SettingsPage() {
               onChange={handleFileChange}
             />
           </div>
+        </Card>
+
+        {/* Sign Out */}
+        <Card header={
+          <span className="text-sm font-semibold text-[var(--text-primary)]">Account</span>
+        }>
+          <Button variant="secondary" fullWidth onClick={handleSignOut}>
+            <LogOut size={16} />
+            Sign Out
+          </Button>
         </Card>
 
         {/* Danger zone */}

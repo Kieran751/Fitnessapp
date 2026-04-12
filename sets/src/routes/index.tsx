@@ -1,9 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import { Play, Scale, Clock, Flame, User } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
-import { useLiveQuery } from 'dexie-react-hooks'
 import { useAtomValue } from 'jotai'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
@@ -13,9 +12,11 @@ import { WeeklyActivity } from '../components/dashboard/WeeklyActivity'
 import { MuscleHeatmap } from '../components/dashboard/MuscleHeatmap'
 import { useWorkout } from '../hooks/useWorkout'
 import { useStreak } from '../hooks/useStreak'
-import { db } from '../db'
+import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../lib/supabase'
 import { settingsAtom } from '../store/atoms'
 import { formatRelativeDate, formatDuration } from '../lib/formatters'
+import type { Workout, BodyWeight } from '../db'
 
 export const Route = createFileRoute('/')({
   component: DashboardPage,
@@ -54,55 +55,71 @@ function DashboardPage() {
   const navigate = useNavigate()
   const settings = useAtomValue(settingsAtom)
   const streak = useStreak()
+  const { user } = useAuth()
   const [showWeightModal, setShowWeightModal] = useState(false)
   const [weightValue, setWeightValue] = useState(80)
 
   const { monday, sunday } = getWeekBounds()
 
-  const thisWeekCount = useLiveQuery(async () => {
-    const workouts = await db.workouts
-      .filter(
-        (w) =>
-          w.completedAt != null &&
-          new Date(w.startedAt) >= monday &&
-          new Date(w.startedAt) <= sunday,
-      )
-      .count()
-    return workouts
-  }, []) ?? 0
+  const [thisWeekCount, setThisWeekCount] = useState(0)
+  const [totalCount, setTotalCount] = useState(0)
+  const [totalVolume, setTotalVolume] = useState(0)
+  const [recentWorkouts, setRecentWorkouts] = useState<Workout[]>()
+  const [latestBodyWeight, setLatestBodyWeight] = useState<BodyWeight | null>(null)
 
-  const totalCount = useLiveQuery(async () => {
-    return db.workouts.filter((w) => w.completedAt != null).count()
-  }, []) ?? 0
+  useEffect(() => {
+    async function load() {
+      // This week count
+      const { count: weekCount } = await supabase
+        .from('workouts')
+        .select('*', { count: 'exact', head: true })
+        .not('completedAt', 'is', null)
+        .gte('startedAt', monday.toISOString())
+        .lte('startedAt', sunday.toISOString())
+      setThisWeekCount(weekCount ?? 0)
 
-  const totalVolume = useLiveQuery(async () => {
-    const allSets = await db.sets.toArray()
-    return allSets.reduce((sum, s) => sum + s.weight * s.reps, 0)
-  }, []) ?? 0
+      // Total count
+      const { count: total } = await supabase
+        .from('workouts')
+        .select('*', { count: 'exact', head: true })
+        .not('completedAt', 'is', null)
+      setTotalCount(total ?? 0)
 
-  const recentWorkouts = useLiveQuery(async () => {
-    const workouts = await db.workouts
-      .filter((w) => w.completedAt != null)
-      .toArray()
-    workouts.sort((a, b) => {
-      const aTime = a.completedAt ? new Date(a.completedAt).getTime() : 0
-      const bTime = b.completedAt ? new Date(b.completedAt).getTime() : 0
-      return bTime - aTime
-    })
-    return workouts.slice(0, 3)
-  }, [])
+      // Total volume
+      const { data: allSets } = await supabase.from('sets').select('weight, reps')
+      const vol = (allSets ?? []).reduce((sum, s) => sum + s.weight * s.reps, 0)
+      setTotalVolume(vol)
 
-  const latestBodyWeight = useLiveQuery(async () => {
-    const entries = await db.bodyWeights.orderBy('date').reverse().limit(1).toArray()
-    return entries[0] ?? null
+      // Recent workouts
+      const { data: workouts } = await supabase
+        .from('workouts')
+        .select('*')
+        .not('completedAt', 'is', null)
+        .order('completedAt', { ascending: false })
+        .limit(3)
+      setRecentWorkouts((workouts ?? []) as Workout[])
+
+      // Latest body weight
+      const { data: bwData } = await supabase
+        .from('body_weights')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(1)
+      setLatestBodyWeight(bwData && bwData.length > 0 ? (bwData[0] as BodyWeight) : null)
+    }
+    load()
   }, [])
 
   async function saveBodyWeight() {
-    await db.bodyWeights.add({ weight: weightValue, date: new Date() })
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    const userId = authUser!.id
+    await supabase.from('body_weights').insert({ weight: weightValue, date: new Date(), userId })
+    setLatestBodyWeight({ weight: weightValue, date: new Date() })
     setShowWeightModal(false)
   }
 
   const weightStep = settings.units === 'kg' ? 0.5 : 1
+  const displayName = user?.user_metadata?.display_name || 'there'
 
   function formatVolumeShort(vol: number) {
     if (vol >= 1000000) return `${(vol / 1000000).toFixed(1)}M`
@@ -172,7 +189,7 @@ function DashboardPage() {
           className="text-[40px] font-bold text-[var(--text-primary)] mt-1 leading-[1.1]"
           style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.03em' }}
         >
-          {getGreeting()},<br />Kieran
+          {getGreeting()},<br />{displayName}
         </h2>
       </motion.div>
 

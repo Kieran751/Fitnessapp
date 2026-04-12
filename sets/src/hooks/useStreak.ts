@@ -1,39 +1,45 @@
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../db'
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
 function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 export function useStreak(): number {
-  const streak = useLiveQuery(async () => {
-    const workouts = await db.workouts
-      .filter((w) => w.completedAt != null)
-      .toArray()
+  const [streak, setStreak] = useState(0)
 
-    if (workouts.length === 0) return 0
+  useEffect(() => {
+    async function load() {
+      const { data: workouts } = await supabase
+        .from('workouts')
+        .select('completedAt')
+        .not('completedAt', 'is', null)
 
-    const days = new Set(
-      workouts.map((w) => toDateKey(new Date(w.completedAt!)))
-    )
+      if (!workouts || workouts.length === 0) { setStreak(0); return }
 
-    let count = 0
-    const cursor = new Date()
+      const days = new Set(
+        workouts.map((w) => toDateKey(new Date(w.completedAt!)))
+      )
 
-    // If no workout today, start checking from yesterday
-    if (!days.has(toDateKey(cursor))) {
-      cursor.setDate(cursor.getDate() - 1)
-      // If no workout yesterday either, streak is 0
-      if (!days.has(toDateKey(cursor))) return 0
+      let count = 0
+      const cursor = new Date()
+
+      // If no workout today, start checking from yesterday
+      if (!days.has(toDateKey(cursor))) {
+        cursor.setDate(cursor.getDate() - 1)
+        // If no workout yesterday either, streak is 0
+        if (!days.has(toDateKey(cursor))) { setStreak(0); return }
+      }
+
+      while (days.has(toDateKey(cursor))) {
+        count++
+        cursor.setDate(cursor.getDate() - 1)
+      }
+
+      setStreak(count)
     }
-
-    while (days.has(toDateKey(cursor))) {
-      count++
-      cursor.setDate(cursor.getDate() - 1)
-    }
-
-    return count
+    load()
   }, [])
 
-  return streak ?? 0
+  return streak
 }

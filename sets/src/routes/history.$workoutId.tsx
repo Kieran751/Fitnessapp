@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, Dumbbell, Trophy, Trash2 } from 'lucide-react'
-import { useLiveQuery } from 'dexie-react-hooks'
+import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { useState } from 'react'
-import { db } from '../db'
+import { supabase } from '../lib/supabase'
+import { type Workout, type WorkoutSet, type Exercise, type PersonalRecord } from '../db'
 import { settingsAtom } from '../store/atoms'
 import { formatDate, formatDuration, formatVolume } from '../lib/formatters'
 import { Button } from '../components/ui/Button'
@@ -21,44 +21,78 @@ const SET_TYPE_LABEL: Record<string, string> = {
   failure: 'F',
 }
 
+interface WorkoutDetailData {
+  workout: Workout
+  grouped: Map<number, WorkoutSet[]>
+  exerciseMap: Map<number, Exercise>
+  prSetIds: Set<number>
+  totalVolume: number
+  prCount: number
+}
+
 function WorkoutDetailPage() {
   const { workoutId } = Route.useParams()
   const navigate = useNavigate()
   const settings = useAtomValue(settingsAtom)
   const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0)
+  const [data, setData] = useState<WorkoutDetailData | null | undefined>(undefined)
 
   const wid = Number(workoutId)
 
-  const data = useLiveQuery(async () => {
-    const workout = await db.workouts.get(wid)
-    if (!workout) return null
-    const sets = await db.sets.where('workoutId').equals(wid).toArray()
-    const exerciseIds = [...new Set(sets.map((s) => s.exerciseId))]
-    const exercises = await db.exercises.bulkGet(exerciseIds)
-    const exerciseMap = new Map(
-      exercises
-        .filter((e): e is NonNullable<typeof e> => e != null)
-        .map((e) => [e.id!, e]),
-    )
-    const prs = await db.personalRecords.where('workoutId').equals(wid).toArray()
-    const prSetIds = new Set(prs.map((pr) => pr.setId))
+  useEffect(() => {
+    async function load() {
+      const { data: workout } = await supabase
+        .from('workouts')
+        .select('*')
+        .eq('id', wid)
+        .single()
 
-    // Group sets by exerciseId, preserving order of first appearance
-    const grouped = new Map<number, typeof sets>()
-    for (const set of sets) {
-      if (!grouped.has(set.exerciseId)) grouped.set(set.exerciseId, [])
-      grouped.get(set.exerciseId)!.push(set)
+      if (!workout) { setData(null); return }
+
+      const { data: sets } = await supabase
+        .from('sets')
+        .select('*')
+        .eq('workoutId', wid)
+
+      const setsArr = (sets ?? []) as WorkoutSet[]
+      const exerciseIds = [...new Set(setsArr.map((s) => s.exerciseId))]
+
+      const { data: exercises } = exerciseIds.length > 0
+        ? await supabase.from('exercises').select('*').in('id', exerciseIds)
+        : { data: [] }
+
+      const exerciseMap = new Map(
+        (exercises ?? [])
+          .filter((e): e is NonNullable<typeof e> => e != null)
+          .map((e) => [e.id!, e as Exercise]),
+      )
+
+      const { data: prs } = await supabase
+        .from('personal_records')
+        .select('*')
+        .eq('workoutId', wid)
+
+      const prsArr = (prs ?? []) as PersonalRecord[]
+      const prSetIds = new Set(prsArr.map((pr) => pr.setId))
+
+      // Group sets by exerciseId, preserving order of first appearance
+      const grouped = new Map<number, WorkoutSet[]>()
+      for (const set of setsArr) {
+        if (!grouped.has(set.exerciseId)) grouped.set(set.exerciseId, [])
+        grouped.get(set.exerciseId)!.push(set)
+      }
+
+      const totalVolume = setsArr.reduce((sum, s) => sum + s.weight * s.reps, 0)
+
+      setData({ workout: workout as Workout, grouped, exerciseMap, prSetIds, totalVolume, prCount: prsArr.length })
     }
-
-    const totalVolume = sets.reduce((sum, s) => sum + s.weight * s.reps, 0)
-
-    return { workout, grouped, exerciseMap, prSetIds, totalVolume, prCount: prs.length }
+    load()
   }, [wid])
 
   async function handleDelete() {
-    await db.sets.where('workoutId').equals(wid).delete()
-    await db.personalRecords.where('workoutId').equals(wid).delete()
-    await db.workouts.delete(wid)
+    await supabase.from('sets').delete().eq('workoutId', wid)
+    await supabase.from('personal_records').delete().eq('workoutId', wid)
+    await supabase.from('workouts').delete().eq('id', wid)
     navigate({ to: '/history' })
   }
 

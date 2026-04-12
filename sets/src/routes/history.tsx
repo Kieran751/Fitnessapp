@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import { History } from 'lucide-react'
-import { useLiveQuery } from 'dexie-react-hooks'
+import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
 import { EmptyState } from '../components/ui/EmptyState'
 import { HistoryCard } from '../components/history/HistoryCard'
-import { db, type Workout } from '../db'
+import { type Workout } from '../db'
+import { supabase } from '../lib/supabase'
 import { settingsAtom } from '../store/atoms'
 
 export const Route = createFileRoute('/history')({
@@ -24,37 +25,49 @@ function HistoryPage() {
   const navigate = useNavigate()
   const settings = useAtomValue(settingsAtom)
 
-  const summaries = useLiveQuery(async (): Promise<WorkoutSummary[]> => {
-    const workouts = await db.workouts
-      .filter((w) => w.completedAt != null)
-      .toArray()
+  const [summaries, setSummaries] = useState<WorkoutSummary[] | undefined>(undefined)
 
-    // Sort descending by completedAt
-    workouts.sort((a, b) => {
-      const aTime = a.completedAt ? new Date(a.completedAt).getTime() : 0
-      const bTime = b.completedAt ? new Date(b.completedAt).getTime() : 0
-      return bTime - aTime
-    })
+  useEffect(() => {
+    async function load() {
+      const { data: workouts } = await supabase
+        .from('workouts')
+        .select('*')
+        .not('completedAt', 'is', null)
+        .order('completedAt', { ascending: false })
 
-    const result: WorkoutSummary[] = []
-    for (const workout of workouts) {
-      if (workout.id == null) continue
-      const sets = await db.sets.where('workoutId').equals(workout.id).toArray()
-      const totalVolume = sets.reduce((sum, s) => sum + s.weight * s.reps, 0)
-      const exerciseIds = new Set(sets.map((s) => s.exerciseId))
-      const prs = await db.personalRecords
-        .where('workoutId')
-        .equals(workout.id)
-        .count()
-      result.push({
-        workout,
-        totalVolume,
-        exerciseCount: exerciseIds.size,
-        setCount: sets.length,
-        prCount: prs,
-      })
+      if (!workouts || workouts.length === 0) {
+        setSummaries([])
+        return
+      }
+
+      const result: WorkoutSummary[] = []
+      for (const workout of workouts as Workout[]) {
+        if (workout.id == null) continue
+        const { data: sets } = await supabase
+          .from('sets')
+          .select('*')
+          .eq('workoutId', workout.id)
+
+        const setsArr = sets ?? []
+        const totalVolume = setsArr.reduce((sum, s) => sum + s.weight * s.reps, 0)
+        const exerciseIds = new Set(setsArr.map((s) => s.exerciseId))
+
+        const { count: prCount } = await supabase
+          .from('personal_records')
+          .select('*', { count: 'exact', head: true })
+          .eq('workoutId', workout.id)
+
+        result.push({
+          workout,
+          totalVolume,
+          exerciseCount: exerciseIds.size,
+          setCount: setsArr.length,
+          prCount: prCount ?? 0,
+        })
+      }
+      setSummaries(result)
     }
-    return result
+    load()
   }, [])
 
   return (

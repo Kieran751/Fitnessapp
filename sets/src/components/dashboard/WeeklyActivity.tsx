@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../../db'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../lib/supabase'
+import type { Workout, WorkoutSet } from '../../db'
 
 function getWeekBounds(offset = 0) {
   const now = new Date()
@@ -26,68 +27,85 @@ export function WeeklyActivity() {
     return d === 0 ? 6 : d - 1
   })()
 
-  const thisWeekData = useLiveQuery(async () => {
-    const workouts = await db.workouts
-      .filter(
-        (w) =>
-          w.completedAt != null &&
-          new Date(w.startedAt) >= monday &&
-          new Date(w.startedAt) <= sunday,
-      )
-      .toArray()
+  const [thisWeekData, setThisWeekData] = useState<{ workouts: number; sets: number }[]>(
+    Array.from({ length: 7 }, () => ({ workouts: 0, sets: 0 }))
+  )
+  const [prevWeekTotal, setPrevWeekTotal] = useState(0)
 
-    const workoutIds = workouts.map((w) => w.id).filter((id): id is number => id != null)
+  useEffect(() => {
+    async function loadThisWeek() {
+      const { data: workoutsData } = await supabase
+        .from('workouts')
+        .select('*')
+        .not('completedAt', 'is', null)
+        .gte('startedAt', monday.toISOString())
+        .lte('startedAt', sunday.toISOString())
 
-    const allSets = workoutIds.length > 0
-      ? await db.sets.filter((s) => workoutIds.includes(s.workoutId)).toArray()
-      : []
+      const workouts = (workoutsData ?? []) as Workout[]
+      const workoutIds = workouts.map((w) => w.id).filter((id): id is number => id != null)
 
-    const days: { workouts: number; sets: number }[] = Array.from({ length: 7 }, () => ({
-      workouts: 0,
-      sets: 0,
-    }))
+      let allSets: WorkoutSet[] = []
+      if (workoutIds.length > 0) {
+        const { data: setsData } = await supabase
+          .from('sets')
+          .select('*')
+          .in('workoutId', workoutIds)
+        allSets = (setsData ?? []) as WorkoutSet[]
+      }
 
-    for (const w of workouts) {
-      const d = new Date(w.startedAt).getDay()
-      const idx = d === 0 ? 6 : d - 1
-      days[idx].workouts += 1
+      const days: { workouts: number; sets: number }[] = Array.from({ length: 7 }, () => ({
+        workouts: 0,
+        sets: 0,
+      }))
+
+      for (const w of workouts) {
+        const d = new Date(w.startedAt).getDay()
+        const idx = d === 0 ? 6 : d - 1
+        days[idx].workouts += 1
+      }
+
+      for (const s of allSets) {
+        const workout = workouts.find((w) => w.id === s.workoutId)
+        if (workout) {
+          const d = new Date(workout.startedAt).getDay()
+          const idx = d === 0 ? 6 : d - 1
+          days[idx].sets += 1
+        }
+      }
+
+      setThisWeekData(days)
     }
 
-    for (const s of allSets) {
-      const workout = workouts.find((w) => w.id === s.workoutId)
-      if (workout) {
-        const d = new Date(workout.startedAt).getDay()
-        const idx = d === 0 ? 6 : d - 1
-        days[idx].sets += 1
+    async function loadPrevWeek() {
+      const { data: workoutsData } = await supabase
+        .from('workouts')
+        .select('*')
+        .not('completedAt', 'is', null)
+        .gte('startedAt', prevMonday.toISOString())
+        .lte('startedAt', prevSunday.toISOString())
+
+      const workouts = (workoutsData ?? []) as Workout[]
+      const workoutIds = workouts.map((w) => w.id).filter((id): id is number => id != null)
+
+      if (workoutIds.length > 0) {
+        const { data: setsData } = await supabase
+          .from('sets')
+          .select('*')
+          .in('workoutId', workoutIds)
+        setPrevWeekTotal((setsData ?? []).length)
+      } else {
+        setPrevWeekTotal(0)
       }
     }
 
-    return days
+    loadThisWeek()
+    loadPrevWeek()
   }, [monday.getTime(), sunday.getTime()])
 
-  const prevWeekTotal = useLiveQuery(async () => {
-    const workouts = await db.workouts
-      .filter(
-        (w) =>
-          w.completedAt != null &&
-          new Date(w.startedAt) >= prevMonday &&
-          new Date(w.startedAt) <= prevSunday,
-      )
-      .toArray()
-
-    const workoutIds = workouts.map((w) => w.id).filter((id): id is number => id != null)
-
-    const allSets = workoutIds.length > 0
-      ? await db.sets.filter((s) => workoutIds.includes(s.workoutId)).toArray()
-      : []
-
-    return allSets.length
-  }, [prevMonday.getTime(), prevSunday.getTime()])
-
-  const days = thisWeekData ?? Array.from({ length: 7 }, () => ({ workouts: 0, sets: 0 }))
+  const days = thisWeekData
   const maxSets = Math.max(...days.map((d) => d.sets), 1)
   const totalThisWeek = days.reduce((sum, d) => sum + d.sets, 0)
-  const prevTotal = prevWeekTotal ?? 0
+  const prevTotal = prevWeekTotal
 
   const percentChange =
     prevTotal > 0 ? Math.round(((totalThisWeek - prevTotal) / prevTotal) * 100) : null

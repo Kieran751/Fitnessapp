@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HistoryWorkoutIdRouteImport } from './routes/history.$workoutId'
@@ -29,6 +30,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -50,6 +56,7 @@ const HistoryWorkoutIdRoute = HistoryWorkoutIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/history': typeof HistoryRouteWithChildren
+  '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/history': typeof HistoryRouteWithChildren
+  '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/history': typeof HistoryRouteWithChildren
+  '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/history'
+    | '/login'
     | '/progress'
     | '/settings'
     | '/templates'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/history'
+    | '/login'
     | '/progress'
     | '/settings'
     | '/templates'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/history'
+    | '/login'
     | '/progress'
     | '/settings'
     | '/templates'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HistoryRoute: typeof HistoryRouteWithChildren
+  LoginRoute: typeof LoginRoute
   ProgressRoute: typeof ProgressRoute
   SettingsRoute: typeof SettingsRoute
   TemplatesRoute: typeof TemplatesRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/progress'
       fullPath: '/progress'
       preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -168,6 +188,7 @@ const HistoryRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HistoryRoute: HistoryRouteWithChildren,
+  LoginRoute: LoginRoute,
   ProgressRoute: ProgressRoute,
   SettingsRoute: SettingsRoute,
   TemplatesRoute: TemplatesRoute,

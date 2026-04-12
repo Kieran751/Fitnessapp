@@ -1,16 +1,25 @@
 import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db, type Template } from '../../db'
+import { useState, useEffect } from 'react'
+import { type Template } from '../../db'
+import { supabase } from '../../lib/supabase'
 
 interface TemplateQuickStartProps {
   startFromTemplate: (template: Template) => void
 }
 
 export function TemplateQuickStart({ startFromTemplate }: TemplateQuickStartProps) {
-  const templates = useLiveQuery(() => db.templates.toArray(), [])
+  const [templates, setTemplates] = useState<Template[]>([])
 
-  if (!templates || templates.length === 0) return null
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase.from('templates').select('*')
+      setTemplates((data ?? []) as Template[])
+    }
+    load()
+  }, [])
+
+  if (templates.length === 0) return null
 
   return (
     <div>

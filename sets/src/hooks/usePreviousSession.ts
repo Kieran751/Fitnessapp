@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { db } from '../db'
+import { supabase } from '../lib/supabase'
 
 export interface PreviousSet {
   setNumber: number
@@ -11,17 +11,29 @@ export async function fetchPreviousSets(
   exerciseId: number,
   currentWorkoutId: number,
 ): Promise<PreviousSet[]> {
-  const allSets = await db.sets.where('exerciseId').equals(exerciseId).toArray()
+  // Get all sets for this exercise
+  const { data: allSets } = await supabase
+    .from('sets')
+    .select('*')
+    .eq('exerciseId', exerciseId)
+
+  if (!allSets || allSets.length === 0) return []
+
   const otherWorkoutIds = [...new Set(allSets.map(s => s.workoutId))].filter(
     id => id !== currentWorkoutId,
   )
   if (otherWorkoutIds.length === 0) return []
 
-  const workouts = await Promise.all(otherWorkoutIds.map(id => db.workouts.get(id)))
-  const completed = workouts.filter(w => w?.completedAt) as NonNullable<typeof workouts[0]>[]
-  if (completed.length === 0) return []
+  // Get those workouts to find the most recent completed one
+  const { data: workouts } = await supabase
+    .from('workouts')
+    .select('*')
+    .in('id', otherWorkoutIds)
+    .not('completedAt', 'is', null)
 
-  const mostRecent = completed.sort(
+  if (!workouts || workouts.length === 0) return []
+
+  const mostRecent = workouts.sort(
     (a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime(),
   )[0]
 

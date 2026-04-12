@@ -1,4 +1,4 @@
-import { db } from '../db'
+import { supabase } from './supabase'
 
 export async function checkForPR(
   exerciseId: number,
@@ -6,6 +6,7 @@ export async function checkForPR(
   reps: number,
   workoutId: number,
   setId: number,
+  userId: string,
 ): Promise<{ isPR: boolean }> {
   if (weight <= 0) return { isPR: false }
 
@@ -15,39 +16,45 @@ export async function checkForPR(
   // Estimated 1RM (Epley formula)
   const estimated1RM = Math.round((weight * (1 + reps / 30)) * 10) / 10
 
-  const existing1RM = await db.personalRecords
-    .where('exerciseId').equals(exerciseId)
-    .and(r => r.type === '1rm')
-    .first()
+  const { data: existing1RM } = await supabase
+    .from('personal_records')
+    .select('*')
+    .eq('exerciseId', exerciseId)
+    .eq('type', '1rm')
+    .maybeSingle()
 
   if (!existing1RM || estimated1RM > existing1RM.value) {
     if (existing1RM?.id !== undefined) {
-      await db.personalRecords.update(existing1RM.id, {
-        value: estimated1RM, achievedAt: now, workoutId, setId,
-      })
+      await supabase
+        .from('personal_records')
+        .update({ value: estimated1RM, achievedAt: now, workoutId, setId })
+        .eq('id', existing1RM.id)
     } else {
-      await db.personalRecords.add({
-        exerciseId, type: '1rm', value: estimated1RM, achievedAt: now, workoutId, setId,
-      })
+      await supabase
+        .from('personal_records')
+        .insert({ exerciseId, type: '1rm', value: estimated1RM, achievedAt: now, workoutId, setId, userId })
     }
     isPR = true
   }
 
   // Max weight
-  const existingMax = await db.personalRecords
-    .where('exerciseId').equals(exerciseId)
-    .and(r => r.type === 'maxWeight')
-    .first()
+  const { data: existingMax } = await supabase
+    .from('personal_records')
+    .select('*')
+    .eq('exerciseId', exerciseId)
+    .eq('type', 'maxWeight')
+    .maybeSingle()
 
   if (!existingMax || weight > existingMax.value) {
     if (existingMax?.id !== undefined) {
-      await db.personalRecords.update(existingMax.id, {
-        value: weight, achievedAt: now, workoutId, setId,
-      })
+      await supabase
+        .from('personal_records')
+        .update({ value: weight, achievedAt: now, workoutId, setId })
+        .eq('id', existingMax.id)
     } else {
-      await db.personalRecords.add({
-        exerciseId, type: 'maxWeight', value: weight, achievedAt: now, workoutId, setId,
-      })
+      await supabase
+        .from('personal_records')
+        .insert({ exerciseId, type: 'maxWeight', value: weight, achievedAt: now, workoutId, setId, userId })
     }
     isPR = true
   }
