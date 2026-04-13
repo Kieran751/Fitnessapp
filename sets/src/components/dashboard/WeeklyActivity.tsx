@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import type { Workout, WorkoutSet } from '../../db'
+
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
