@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'framer-motion'
+import { CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../components/ui/Button'
+import { Modal } from '../components/ui/Modal'
 import { useAuth } from '../hooks/useAuth'
 
 export const Route = createFileRoute('/login')({
@@ -9,7 +11,7 @@ export const Route = createFileRoute('/login')({
 })
 
 function LoginPage() {
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, resetPasswordForEmail } = useAuth()
   const navigate = useNavigate()
 
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -18,6 +20,13 @@ function LoginPage() {
   const [displayName, setDisplayName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  // Forgot password modal state
+  const [forgotOpen, setForgotOpen] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSubmitting, setForgotSubmitting] = useState(false)
+  const [forgotSent, setForgotSent] = useState(false)
+  const [forgotError, setForgotError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -53,6 +62,24 @@ function LoginPage() {
   function toggleMode() {
     setMode(mode === 'signin' ? 'signup' : 'signin')
     setError(null)
+  }
+
+  async function handleForgotSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setForgotError(null)
+    setForgotSubmitting(true)
+    try {
+      const { error: err } = await resetPasswordForEmail(forgotEmail)
+      if (err) {
+        setForgotError(err.message)
+        return
+      }
+      setForgotSent(true)
+    } catch {
+      setForgotError('Something went wrong. Please try again.')
+    } finally {
+      setForgotSubmitting(false)
+    }
   }
 
   const inputClass =
@@ -181,6 +208,24 @@ function LoginPage() {
               minLength={6}
             />
 
+            {mode === 'signin' && (
+              <div className="flex justify-end -mt-2">
+                <button
+                  type="button"
+                  className="text-xs text-[var(--accent)] font-semibold cursor-pointer bg-transparent border-none"
+                  style={{ fontFamily: "'Manrope', sans-serif" }}
+                  onClick={() => {
+                    setForgotOpen(true)
+                    setForgotEmail(email)
+                    setForgotSent(false)
+                    setForgotError(null)
+                  }}
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
+
             {/* Error */}
             <AnimatePresence>
               {error && (
@@ -227,6 +272,77 @@ function LoginPage() {
           </button>
         </motion.p>
       </motion.div>
+
+      {/* Forgot password modal */}
+      <Modal
+        isOpen={forgotOpen}
+        onClose={() => setForgotOpen(false)}
+        title={forgotSent ? undefined : 'Reset Password'}
+      >
+        {!forgotSent ? (
+          <form onSubmit={handleForgotSubmit} className="flex flex-col gap-4">
+            <p
+              className="text-sm text-[var(--text-secondary)]"
+              style={{ fontFamily: "'Manrope', sans-serif" }}
+            >
+              Enter your email and we'll send you a link to reset your password.
+            </p>
+            <input
+              type="email"
+              placeholder="Email"
+              value={forgotEmail}
+              onChange={(e) => setForgotEmail(e.target.value)}
+              className={inputClass}
+              style={inputStyle}
+              autoComplete="email"
+              required
+            />
+            <AnimatePresence>
+              {forgotError && (
+                <motion.p
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  className="text-sm text-[var(--danger)] text-center"
+                  style={{ fontFamily: "'Manrope', sans-serif" }}
+                >
+                  {forgotError}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <Button type="submit" fullWidth disabled={forgotSubmitting}>
+              {forgotSubmitting ? 'Sending...' : 'Send Reset Link'}
+            </Button>
+          </form>
+        ) : (
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+            >
+              <CheckCircle size={48} className="text-[var(--success)]" />
+            </motion.div>
+            <h3
+              className="text-lg font-semibold text-[var(--text-primary)]"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              Check your email
+            </h3>
+            <p
+              className="text-sm text-[var(--text-secondary)]"
+              style={{ fontFamily: "'Manrope', sans-serif" }}
+            >
+              We sent a password reset link to <strong className="text-[var(--text-primary)]">{forgotEmail}</strong>.
+              Click the link in your email to set a new password.
+            </p>
+            <Button variant="secondary" fullWidth onClick={() => setForgotOpen(false)}>
+              Back to Login
+            </Button>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

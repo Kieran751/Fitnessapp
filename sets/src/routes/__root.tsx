@@ -30,7 +30,8 @@ function RootLayout() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!loading && !user && pathname !== '/login') {
+    const publicPaths = ['/login', '/reset-password']
+    if (!loading && !user && !publicPaths.includes(pathname)) {
       navigate({ to: '/login' })
     }
   }, [loading, user, pathname, navigate])
@@ -61,14 +62,14 @@ function RootLayout() {
     )
   }
 
-  const isLoginPage = pathname === '/login'
+  const isAuthPage = pathname === '/login' || pathname === '/reset-password'
 
   return (
     <div className="flex flex-col min-h-dvh bg-[var(--bg-primary)]">
       <div className="bloom-primary" aria-hidden="true" />
       <div className="bloom-secondary" aria-hidden="true" />
       <motion.main
-        className={`flex-1 ${isLoginPage ? '' : 'pb-20'} relative z-1`}
+        className={`flex-1 ${isAuthPage ? '' : 'pb-20'} relative z-1`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
@@ -76,7 +77,7 @@ function RootLayout() {
         <Outlet />
       </motion.main>
 
-      {!isLoginPage && !session && !summary && <BottomNav />}
+      {!isAuthPage && !session && !summary && <BottomNav />}
 
       <AnimatePresence>
         {session && <ActiveWorkout key="active-workout" />}
