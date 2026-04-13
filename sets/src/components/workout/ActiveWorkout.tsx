@@ -14,7 +14,7 @@ export function ActiveWorkout() {
   const {
     session, addExercise, logSet, updateSetField,
     addSet, toggleExpanded, renameWorkout,
-    uncompleteSet, finishWorkout, cancelWorkout,
+    uncompleteSet, removeSet, removeExercise, finishWorkout, cancelWorkout,
   } = useWorkout()
 
   const [elapsed, setElapsed] = useState(0)
@@ -144,6 +144,8 @@ export function ActiveWorkout() {
               onUncomplete={uncompleteSet}
               onAddSet={addSet}
               onToggle={toggleExpanded}
+              onRemoveSet={removeSet}
+              onRemoveExercise={removeExercise}
             />
           </motion.div>
         ))}

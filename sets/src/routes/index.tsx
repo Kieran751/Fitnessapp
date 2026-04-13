@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-import { Play, Scale, Clock, Flame, User } from 'lucide-react'
+import { Play, Clock, Flame, User } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useAtomValue } from 'jotai'
@@ -10,13 +10,14 @@ import { NumberStepper } from '../components/ui/NumberStepper'
 import { TemplateQuickStart } from '../components/dashboard/TemplateQuickStart'
 import { WeeklyActivity } from '../components/dashboard/WeeklyActivity'
 import { MuscleHeatmap } from '../components/dashboard/MuscleHeatmap'
+import { BodyWeightChart } from '../components/dashboard/BodyWeightChart'
 import { useWorkout } from '../hooks/useWorkout'
 import { useStreak } from '../hooks/useStreak'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import { settingsAtom } from '../store/atoms'
 import { formatRelativeDate, formatDuration } from '../lib/formatters'
-import type { Workout, BodyWeight } from '../db'
+import type { Workout } from '../db'
 
 export const Route = createFileRoute('/')({
   component: DashboardPage,
@@ -65,7 +66,6 @@ function DashboardPage() {
   const [totalCount, setTotalCount] = useState(0)
   const [totalVolume, setTotalVolume] = useState(0)
   const [recentWorkouts, setRecentWorkouts] = useState<Workout[]>()
-  const [latestBodyWeight, setLatestBodyWeight] = useState<BodyWeight | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -99,13 +99,6 @@ function DashboardPage() {
         .limit(3)
       setRecentWorkouts((workouts ?? []) as Workout[])
 
-      // Latest body weight
-      const { data: bwData } = await supabase
-        .from('body_weights')
-        .select('*')
-        .order('date', { ascending: false })
-        .limit(1)
-      setLatestBodyWeight(bwData && bwData.length > 0 ? (bwData[0] as BodyWeight) : null)
     }
     load()
   }, [])
@@ -114,7 +107,6 @@ function DashboardPage() {
     const { data: { user: authUser } } = await supabase.auth.getUser()
     const userId = authUser!.id
     await supabase.from('body_weights').insert({ weight: weightValue, date: new Date(), userId })
-    setLatestBodyWeight({ weight: weightValue, date: new Date() })
     setShowWeightModal(false)
   }
 
@@ -274,26 +266,10 @@ function DashboardPage() {
         transition={{ duration: 0.35, delay: 0.25 }}
         className="mt-3"
       >
-        <div
-          className="flex items-center justify-between rounded-2xl px-5 py-4 cursor-pointer border border-[var(--glass-border)] transition-all duration-150 hover:bg-[var(--glass-hover)]"
-          style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
-          onClick={() => {
-            if (latestBodyWeight) setWeightValue(latestBodyWeight.weight)
-            setShowWeightModal(true)
-          }}
-        >
-          <div className="flex items-center gap-2.5">
-            <Scale size={15} className="text-[var(--text-tertiary)]" />
-            <span className="text-sm font-semibold text-[var(--text-primary)]">Body Weight</span>
-          </div>
-          {latestBodyWeight ? (
-            <span className="font-mono tabular text-base font-bold text-[var(--text-primary)]">
-              {latestBodyWeight.weight} <span className="text-[var(--text-tertiary)] text-xs">{settings.units}</span>
-            </span>
-          ) : (
-            <span className="text-xs font-semibold text-[var(--accent)] uppercase tracking-[0.05em]">Log weight</span>
-          )}
-        </div>
+        <BodyWeightChart
+          unit={settings.units}
+          onLogWeight={() => setShowWeightModal(true)}
+        />
       </motion.div>
 
       {/* Template Quick Start */}

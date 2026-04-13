@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Minus, Plus } from 'lucide-react'
 
@@ -29,6 +29,13 @@ export function NumberStepper({
   const canDecrement = min === undefined || value > min
   const canIncrement = max === undefined || value < max
   const displayValue = Number.isInteger(value) ? String(value) : value.toFixed(1)
+
+  // Native picker options (used in compact mode)
+  const pickerOptions = useMemo(() => {
+    const pMin = min ?? 0
+    const pMax = unit ? 300 : 100
+    return Array.from({ length: pMax - pMin + 1 }, (_, i) => pMin + i)
+  }, [min, unit])
 
   function applyChange(dir: 1 | -1, s: number) {
     const next = parseFloat((valueRef.current + dir * s).toFixed(10))
@@ -79,13 +86,24 @@ export function NumberStepper({
           <Minus size={14} strokeWidth={2.5} />
         </button>
 
-        <div className="flex-1 flex items-baseline justify-center gap-0.5" style={{ minWidth: 0 }}>
+        <div className="flex-1 relative flex items-center justify-center gap-0.5 self-stretch" style={{ minWidth: 0 }}>
           <span className="font-mono tabular font-semibold text-base text-[var(--text-primary)]">
             {displayValue}
           </span>
           {unit && (
             <span className="text-[10px] text-[var(--text-tertiary)]">{unit}</span>
           )}
+          {/* Native iOS picker overlay — tapping opens scroll wheel */}
+          <select
+            value={value}
+            onChange={e => onChange(Number(e.target.value))}
+            className="absolute inset-0 opacity-0 cursor-pointer"
+            style={{ fontSize: '16px' }}
+          >
+            {pickerOptions.map(v => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
         </div>
 
         <button

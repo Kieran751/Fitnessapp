@@ -124,67 +124,87 @@ export function useWorkout() {
     setSession(prev => prev ? { ...prev, exercises: [...prev.exercises, state] } : prev)
   }
 
-  async function logSet(
-    exerciseIdx: number,
-    setIdx: number,
-  ): Promise<{ isPR: boolean }> {
-    if (!session) return { isPR: false }
+  function logSet(exerciseIdx: number, setIdx: number) {
+    if (!session) return
     const ex = session.exercises[exerciseIdx]
     const set = ex.sets[setIdx]
 
-    const { data: { user } } = await supabase.auth.getUser()
-    const userId = user!.id
+    // Capture values for background DB work
+    const workoutId = session.workoutId
+    const exerciseId = ex.exerciseId
+    const setUuid = set.id
+    const { setNumber, weight, reps, setType } = set
+    const restSeconds = ex.restSeconds
+    const exerciseName = ex.exercise.name
 
-    const { data: insertedSet } = await supabase
-      .from('sets')
-      .insert({
-        workoutId: session.workoutId,
-        exerciseId: ex.exerciseId,
-        setNumber: set.setNumber,
-        weight: set.weight,
-        reps: set.reps,
-        setType: set.setType,
-        timestamp: new Date(),
-        userId,
-      })
-      .select()
-      .single()
-
-    const setId = insertedSet!.id as number
+    // Optimistic UI — mark as logged instantly
+    setSession(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        exercises: prev.exercises.map((e, ei) => {
+          if (ei !== exerciseIdx) return e
+          return { ...e, sets: e.sets.map((s, si) => si === setIdx ? { ...s, isLogged: true } : s) }
+        }),
+      }
+    })
 
     navigator.vibrate?.(50)
-
-    const { isPR } = set.weight > 0
-      ? await checkForPR(ex.exerciseId, set.weight, set.reps, session.workoutId, setId, userId)
-      : { isPR: false }
-
-    if (isPR) navigator.vibrate?.([50, 30, 50, 30, 100])
 
     setRestTimer({
       isActive: true,
       isMinimized: false,
-      totalSeconds: ex.restSeconds,
-      remainingSeconds: ex.restSeconds,
-      exerciseName: ex.exercise.name,
+      totalSeconds: restSeconds,
+      remainingSeconds: restSeconds,
+      exerciseName,
     })
 
-    setSession(prev => {
-      if (!prev) return prev
-      const exercises = prev.exercises.map((e, ei) => {
-        if (ei !== exerciseIdx) return e
-        const sets = e.sets.map((s, si) =>
-          si === setIdx ? { ...s, isLogged: true, dbId: setId, isPR } : s,
-        )
-        // Append a new empty set after the last one is logged
-        if (setIdx === sets.length - 1) {
-          sets.push(makeSet(sets.length + 1, set.weight, set.reps))
+    // Background: DB persist + PR check
+    ;(async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        const userId = user!.id
+
+        const { data: inserted } = await supabase
+          .from('sets')
+          .insert({ workoutId, exerciseId, setNumber, weight, reps, setType, timestamp: new Date(), userId })
+          .select()
+          .single()
+
+        const dbId = inserted!.id as number
+
+        // Store DB id (safe against reorder via UUID lookup)
+        setSession(prev => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            exercises: prev.exercises.map(e => ({
+              ...e,
+              sets: e.sets.map(s => s.id === setUuid ? { ...s, dbId } : s),
+            })),
+          }
+        })
+
+        if (weight > 0) {
+          const { isPR } = await checkForPR(exerciseId, weight, reps, workoutId, dbId, userId)
+          if (isPR) {
+            navigator.vibrate?.([50, 30, 50, 30, 100])
+            setSession(prev => {
+              if (!prev) return prev
+              return {
+                ...prev,
+                exercises: prev.exercises.map(e => ({
+                  ...e,
+                  sets: e.sets.map(s => s.id === setUuid ? { ...s, isPR: true } : s),
+                })),
+              }
+            })
+          }
         }
-        return { ...e, sets }
-      })
-      return { ...prev, exercises }
-    })
-
-    return { isPR }
+      } catch (err) {
+        console.error('Failed to persist set:', err)
+      }
+    })()
   }
 
   function updateSetField(
@@ -247,6 +267,45 @@ export function useWorkout() {
     })
   }
 
+  function removeSet(exerciseIdx: number, setIdx: number) {
+    if (!session) return
+    const set = session.exercises[exerciseIdx]?.sets[setIdx]
+
+    setSession(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        exercises: prev.exercises.map((e, ei) => {
+          if (ei !== exerciseIdx) return e
+          return {
+            ...e,
+            sets: e.sets
+              .filter((_, si) => si !== setIdx)
+              .map((s, i) => ({ ...s, setNumber: i + 1 })),
+          }
+        }),
+      }
+    })
+
+    if (set?.dbId) {
+      supabase.from('sets').delete().eq('id', set.dbId)
+    }
+  }
+
+  function removeExercise(exerciseIdx: number) {
+    if (!session) return
+    const ex = session.exercises[exerciseIdx]
+
+    setSession(prev => {
+      if (!prev) return prev
+      return { ...prev, exercises: prev.exercises.filter((_, i) => i !== exerciseIdx) }
+    })
+
+    for (const s of ex.sets) {
+      if (s.dbId) supabase.from('sets').delete().eq('id', s.dbId)
+    }
+  }
+
   async function finishWorkout() {
     if (!session) return
     const completedAt = new Date()
@@ -290,6 +349,8 @@ export function useWorkout() {
     toggleExpanded,
     renameWorkout,
     uncompleteSet,
+    removeSet,
+    removeExercise,
     finishWorkout,
     cancelWorkout,
   }
