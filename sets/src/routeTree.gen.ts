@@ -13,8 +13,8 @@ import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as HistoryRouteImport } from './routes/history'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HistoryIndexRouteImport } from './routes/history.index'
 import { Route as HistoryWorkoutIdRouteImport } from './routes/history.$workoutId'
 
 const TemplatesRoute = TemplatesRouteImport.update({
@@ -37,87 +37,88 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HistoryRoute = HistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoryIndexRoute = HistoryIndexRouteImport.update({
+  id: '/history/',
+  path: '/history/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoryWorkoutIdRoute = HistoryWorkoutIdRouteImport.update({
-  id: '/$workoutId',
-  path: '/$workoutId',
-  getParentRoute: () => HistoryRoute,
+  id: '/history/$workoutId',
+  path: '/history/$workoutId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/history': typeof HistoryRouteWithChildren
   '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/history/$workoutId': typeof HistoryWorkoutIdRoute
+  '/history/': typeof HistoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/history': typeof HistoryRouteWithChildren
   '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/history/$workoutId': typeof HistoryWorkoutIdRoute
+  '/history': typeof HistoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/history': typeof HistoryRouteWithChildren
   '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/history/$workoutId': typeof HistoryWorkoutIdRoute
+  '/history/': typeof HistoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/history'
     | '/login'
     | '/progress'
     | '/settings'
     | '/templates'
     | '/history/$workoutId'
+    | '/history/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/history'
     | '/login'
     | '/progress'
     | '/settings'
     | '/templates'
     | '/history/$workoutId'
+    | '/history'
   id:
     | '__root__'
     | '/'
-    | '/history'
     | '/login'
     | '/progress'
     | '/settings'
     | '/templates'
     | '/history/$workoutId'
+    | '/history/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  HistoryRoute: typeof HistoryRouteWithChildren
   LoginRoute: typeof LoginRoute
   ProgressRoute: typeof ProgressRoute
   SettingsRoute: typeof SettingsRoute
   TemplatesRoute: typeof TemplatesRoute
+  HistoryWorkoutIdRoute: typeof HistoryWorkoutIdRoute
+  HistoryIndexRoute: typeof HistoryIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -150,13 +151,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/history': {
-      id: '/history'
-      path: '/history'
-      fullPath: '/history'
-      preLoaderRoute: typeof HistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -164,34 +158,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/history/': {
+      id: '/history/'
+      path: '/history'
+      fullPath: '/history/'
+      preLoaderRoute: typeof HistoryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/history/$workoutId': {
       id: '/history/$workoutId'
-      path: '/$workoutId'
+      path: '/history/$workoutId'
       fullPath: '/history/$workoutId'
       preLoaderRoute: typeof HistoryWorkoutIdRouteImport
-      parentRoute: typeof HistoryRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface HistoryRouteChildren {
-  HistoryWorkoutIdRoute: typeof HistoryWorkoutIdRoute
-}
-
-const HistoryRouteChildren: HistoryRouteChildren = {
-  HistoryWorkoutIdRoute: HistoryWorkoutIdRoute,
-}
-
-const HistoryRouteWithChildren =
-  HistoryRoute._addFileChildren(HistoryRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  HistoryRoute: HistoryRouteWithChildren,
   LoginRoute: LoginRoute,
   ProgressRoute: ProgressRoute,
   SettingsRoute: SettingsRoute,
   TemplatesRoute: TemplatesRoute,
+  HistoryWorkoutIdRoute: HistoryWorkoutIdRoute,
+  HistoryIndexRoute: HistoryIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

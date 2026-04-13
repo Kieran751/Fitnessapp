@@ -9,7 +9,7 @@ import { type Workout } from '../db'
 import { supabase } from '../lib/supabase'
 import { settingsAtom } from '../store/atoms'
 
-export const Route = createFileRoute('/history')({
+export const Route = createFileRoute('/history/')({
   component: HistoryPage,
 })
 
