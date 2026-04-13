@@ -4,6 +4,15 @@
 
 @import "tailwindcss";
 
+/* Safe area utilities for PWA standalone mode */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 @theme {
   --font-sans: 'Manrope', sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
