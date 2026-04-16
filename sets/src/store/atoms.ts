@@ -88,6 +88,16 @@ export interface ToastState {
 }
 export const toastAtom = atom<ToastState | null>(null)
 
+// ─── PWA install prompt ───────────────────────────────────────────────────────
+export interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
+}
+export const deferredInstallPromptAtom = atom<BeforeInstallPromptEvent | null>(null)
+
+// ─── Network status ───────────────────────────────────────────────────────────
+export const isOfflineAtom = atom<boolean>(false)
+
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 export const workoutSessionAtom = atom<WorkoutSession | null>(null)
 export const restTimerAtom = atom<RestTimerState>(defaultRestTimer)

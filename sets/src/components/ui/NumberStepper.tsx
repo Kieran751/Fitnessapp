@@ -41,6 +41,7 @@ export function NumberStepper({
     const next = parseFloat((valueRef.current + dir * s).toFixed(10))
     if (dir === -1 && min !== undefined && next < min) return
     if (dir ===  1 && max !== undefined && next > max) return
+    navigator.vibrate?.(10)
     onChange(next)
   }
 

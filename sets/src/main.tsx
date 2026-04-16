@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { Provider as JotaiProvider } from 'jotai'
 import { routeTree } from './routeTree.gen'
+import { ErrorBoundary } from './components/ui/ErrorBoundary'
 import './styles/globals.css'
 
 const router = createRouter({ routeTree })
@@ -15,8 +16,10 @@ declare module '@tanstack/react-router' {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <JotaiProvider>
-      <RouterProvider router={router} />
-    </JotaiProvider>
+    <ErrorBoundary>
+      <JotaiProvider>
+        <RouterProvider router={router} />
+      </JotaiProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )

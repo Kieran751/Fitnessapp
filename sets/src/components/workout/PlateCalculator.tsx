@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { settingsAtom } from '../../store/atoms'
 import { Modal } from '../ui/Modal'
 import { NumberStepper } from '../ui/NumberStepper'
@@ -235,25 +235,29 @@ function BarbellDiagram({
     <div className="flex items-center justify-center w-full">
       {/* Left side — plates from outside in (smallest outside) */}
       <div className="flex items-center justify-end" style={{ height: 100 }}>
-        {[...stack].reverse().map((w, i) => {
-          const s = styles[w]
-          return (
-            <motion.div
-              key={`l-${i}-${w}`}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2, delay: i * 0.03 }}
-              style={{
-                width: 9,
-                height: s?.height ?? 40,
-                background: s?.color ?? '#999',
-                borderRadius: 2,
-                marginRight: 1.5,
-                boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.25)',
-              }}
-            />
-          )
-        })}
+        <AnimatePresence initial={false}>
+          {[...stack].reverse().map((w, i) => {
+            const s = styles[w]
+            return (
+              <motion.div
+                key={`l-${i}-${w}`}
+                layout
+                initial={{ opacity: 0, x: -10, scaleY: 0.6 }}
+                animate={{ opacity: 1, x: 0, scaleY: 1 }}
+                exit={{ opacity: 0, x: -10, scaleY: 0.6 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                style={{
+                  width: 9,
+                  height: s?.height ?? 40,
+                  background: s?.color ?? '#999',
+                  borderRadius: 2,
+                  marginRight: 1.5,
+                  boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.25)',
+                }}
+              />
+            )
+          })}
+        </AnimatePresence>
       </div>
 
       {/* Sleeve (bar end) */}
@@ -267,25 +271,29 @@ function BarbellDiagram({
 
       {/* Right side — mirror */}
       <div className="flex items-center justify-start" style={{ height: 100 }}>
-        {stack.map((w, i) => {
-          const s = styles[w]
-          return (
-            <motion.div
-              key={`r-${i}-${w}`}
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2, delay: i * 0.03 }}
-              style={{
-                width: 9,
-                height: s?.height ?? 40,
-                background: s?.color ?? '#999',
-                borderRadius: 2,
-                marginLeft: 1.5,
-                boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.25)',
-              }}
-            />
-          )
-        })}
+        <AnimatePresence initial={false}>
+          {stack.map((w, i) => {
+            const s = styles[w]
+            return (
+              <motion.div
+                key={`r-${i}-${w}`}
+                layout
+                initial={{ opacity: 0, x: 10, scaleY: 0.6 }}
+                animate={{ opacity: 1, x: 0, scaleY: 1 }}
+                exit={{ opacity: 0, x: 10, scaleY: 0.6 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                style={{
+                  width: 9,
+                  height: s?.height ?? 40,
+                  background: s?.color ?? '#999',
+                  borderRadius: 2,
+                  marginLeft: 1.5,
+                  boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.25)',
+                }}
+              />
+            )
+          })}
+        </AnimatePresence>
       </div>
     </div>
   )

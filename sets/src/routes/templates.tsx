@@ -6,31 +6,47 @@ import { TemplateCard } from '../components/templates/TemplateCard'
 import { TemplateForm } from '../components/templates/TemplateForm'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
+import { Skeleton } from '../components/ui/Skeleton'
 import { type Template } from '../db'
 import { supabase } from '../lib/supabase'
 import { useWorkout } from '../hooks/useWorkout'
+import { useToast } from '../hooks/useToast'
 
 export const Route = createFileRoute('/templates')({
   component: TemplatesPage,
 })
 
 function TemplatesPage() {
-  const [templates, setTemplates] = useState<Template[]>([])
+  const [templates, setTemplates] = useState<Template[] | undefined>(undefined)
   const [showForm, setShowForm] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<Template | undefined>()
   const { startFromTemplate } = useWorkout()
+  const { show } = useToast()
 
   function refresh() {
-    supabase.from('templates').select('*').then(({ data }) => {
-      setTemplates((data ?? []) as Template[])
-    })
+    supabase
+      .from('templates')
+      .select('*')
+      .then(({ data, error }) => {
+        if (error) {
+          show("Couldn't load templates. Try again.", 'error')
+          setTemplates([])
+          return
+        }
+        setTemplates((data ?? []) as Template[])
+      })
   }
 
   useEffect(() => { refresh() }, [])
 
   async function handleDelete(id: number) {
-    await supabase.from('templates').delete().eq('id', id)
-    refresh()
+    try {
+      const { error } = await supabase.from('templates').delete().eq('id', id)
+      if (error) throw error
+      refresh()
+    } catch {
+      show("Couldn't delete template. Try again.", 'error')
+    }
   }
 
   function openCreate() {
@@ -72,7 +88,13 @@ function TemplatesPage() {
         transition={{ duration: 0.35, delay: 0.1 }}
         className="mt-4 flex flex-col gap-3"
       >
-        {templates.length === 0 ? (
+        {templates === undefined ? (
+          <>
+            <Skeleton height={104} radius="2xl" />
+            <Skeleton height={104} radius="2xl" />
+            <Skeleton height={104} radius="2xl" />
+          </>
+        ) : templates.length === 0 ? (
           <EmptyState
             icon={BookMarked}
             title="No templates yet"

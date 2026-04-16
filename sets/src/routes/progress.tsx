@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { TrendingUp, Dumbbell, BarChart3, CalendarDays, Trophy, Target } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EmptyState } from '../components/ui/EmptyState'
+import { Skeleton } from '../components/ui/Skeleton'
+import { useToast } from '../hooks/useToast'
 import { ExerciseProgressChart } from '../components/progress/ExerciseProgressChart'
 import { VolumeTrendsChart } from '../components/progress/VolumeTrendsChart'
 import { WorkoutCalendar } from '../components/progress/WorkoutCalendar'
@@ -20,13 +22,21 @@ const RANGES: TimeRange[] = ['1M', '3M', '6M', '1Y', 'ALL']
 function ProgressPage() {
   const [range, setRange] = useState<TimeRange>('3M')
   const [hasWorkouts, setHasWorkouts] = useState<boolean | null>(null)
+  const { show } = useToast()
 
   useEffect(() => {
     supabase
       .from('workouts')
       .select('id', { count: 'exact', head: true })
       .not('completedAt', 'is', null)
-      .then(({ count }) => setHasWorkouts((count ?? 0) > 0))
+      .then(({ count, error }) => {
+        if (error) {
+          show("Couldn't load progress. Try again.", 'error')
+          setHasWorkouts(false)
+          return
+        }
+        setHasWorkouts((count ?? 0) > 0)
+      })
   }, [])
 
   // Loading
@@ -40,9 +50,19 @@ function ProgressPage() {
           >
             Progress
           </h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">Track your gains over time</p>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-8 h-8 rounded-full border-2 border-[var(--glass-border)] border-t-[var(--accent)] animate-spin" />
+        <div className="flex gap-2 mt-4 mb-6">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} height={32} radius="lg" style={{ flex: 1 }} />
+          ))}
+        </div>
+        <div className="flex flex-col gap-4">
+          <Skeleton height={320} radius="3xl" />
+          <Skeleton height={260} radius="3xl" />
+          <Skeleton height={200} radius="3xl" />
+          <Skeleton height={240} radius="3xl" />
+          <Skeleton height={260} radius="3xl" />
         </div>
       </div>
     )

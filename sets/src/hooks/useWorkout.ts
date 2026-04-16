@@ -12,6 +12,7 @@ import { type Exercise, type Template } from '../db'
 import { supabase } from '../lib/supabase'
 import { checkForPR } from '../lib/pr'
 import { fetchPreviousSets } from './usePreviousSession'
+import { useToast } from './useToast'
 
 function makeSet(
   setNumber: number,
@@ -48,6 +49,7 @@ export function useWorkout() {
   const [, setRestTimer] = useAtom(restTimerAtom)
   const [, setSummary] = useAtom(workoutSummaryAtom)
   const settings = useAtomValue(settingsAtom)
+  const { show } = useToast()
 
   async function startFreestyle() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -203,6 +205,7 @@ export function useWorkout() {
         }
       } catch (err) {
         console.error('Failed to persist set:', err)
+        show('Failed to save set. Retrying...', 'error')
       }
     })()
   }

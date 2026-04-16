@@ -9,6 +9,8 @@ import { settingsAtom } from '../store/atoms'
 import { formatDate, formatDuration, formatVolume } from '../lib/formatters'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
+import { Skeleton } from '../components/ui/Skeleton'
+import { useToast } from '../hooks/useToast'
 
 export const Route = createFileRoute('/history/$workoutId')({
   component: WorkoutDetailPage,
@@ -34,6 +36,7 @@ function WorkoutDetailPage() {
   const { workoutId } = Route.useParams()
   const navigate = useNavigate()
   const settings = useAtomValue(settingsAtom)
+  const { show } = useToast()
   const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0)
   const [data, setData] = useState<WorkoutDetailData | null | undefined>(undefined)
 
@@ -41,67 +44,87 @@ function WorkoutDetailPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: workout } = await supabase
-        .from('workouts')
-        .select('*')
-        .eq('id', wid)
-        .single()
+      try {
+        const { data: workout, error } = await supabase
+          .from('workouts')
+          .select('*')
+          .eq('id', wid)
+          .single()
 
-      if (!workout) { setData(null); return }
+        if (error || !workout) { setData(null); return }
 
-      const { data: sets } = await supabase
-        .from('sets')
-        .select('*')
-        .eq('workoutId', wid)
+        const { data: sets } = await supabase
+          .from('sets')
+          .select('*')
+          .eq('workoutId', wid)
 
-      const setsArr = (sets ?? []) as WorkoutSet[]
-      const exerciseIds = [...new Set(setsArr.map((s) => s.exerciseId))]
+        const setsArr = (sets ?? []) as WorkoutSet[]
+        const exerciseIds = [...new Set(setsArr.map((s) => s.exerciseId))]
 
-      const { data: exercises } = exerciseIds.length > 0
-        ? await supabase.from('exercises').select('*').in('id', exerciseIds)
-        : { data: [] }
+        const { data: exercises } = exerciseIds.length > 0
+          ? await supabase.from('exercises').select('*').in('id', exerciseIds)
+          : { data: [] }
 
-      const exerciseMap = new Map(
-        (exercises ?? [])
-          .filter((e): e is NonNullable<typeof e> => e != null)
-          .map((e) => [e.id!, e as Exercise]),
-      )
+        const exerciseMap = new Map(
+          (exercises ?? [])
+            .filter((e): e is NonNullable<typeof e> => e != null)
+            .map((e) => [e.id!, e as Exercise]),
+        )
 
-      const { data: prs } = await supabase
-        .from('personal_records')
-        .select('*')
-        .eq('workoutId', wid)
+        const { data: prs } = await supabase
+          .from('personal_records')
+          .select('*')
+          .eq('workoutId', wid)
 
-      const prsArr = (prs ?? []) as PersonalRecord[]
-      const prSetIds = new Set(prsArr.map((pr) => pr.setId))
+        const prsArr = (prs ?? []) as PersonalRecord[]
+        const prSetIds = new Set(prsArr.map((pr) => pr.setId))
 
-      // Group sets by exerciseId, preserving order of first appearance
-      const grouped = new Map<number, WorkoutSet[]>()
-      for (const set of setsArr) {
-        if (!grouped.has(set.exerciseId)) grouped.set(set.exerciseId, [])
-        grouped.get(set.exerciseId)!.push(set)
+        const grouped = new Map<number, WorkoutSet[]>()
+        for (const set of setsArr) {
+          if (!grouped.has(set.exerciseId)) grouped.set(set.exerciseId, [])
+          grouped.get(set.exerciseId)!.push(set)
+        }
+
+        const totalVolume = setsArr.reduce((sum, s) => sum + s.weight * s.reps, 0)
+
+        setData({ workout: workout as Workout, grouped, exerciseMap, prSetIds, totalVolume, prCount: prsArr.length })
+      } catch {
+        show("Couldn't load workout. Try again.", 'error')
+        setData(null)
       }
-
-      const totalVolume = setsArr.reduce((sum, s) => sum + s.weight * s.reps, 0)
-
-      setData({ workout: workout as Workout, grouped, exerciseMap, prSetIds, totalVolume, prCount: prsArr.length })
     }
     load()
   }, [wid])
 
   async function handleDelete() {
-    await supabase.from('sets').delete().eq('workoutId', wid)
-    await supabase.from('personal_records').delete().eq('workoutId', wid)
-    await supabase.from('workouts').delete().eq('id', wid)
-    navigate({ to: '/history' })
+    try {
+      await supabase.from('sets').delete().eq('workoutId', wid)
+      await supabase.from('personal_records').delete().eq('workoutId', wid)
+      await supabase.from('workouts').delete().eq('id', wid)
+      navigate({ to: '/history' })
+    } catch {
+      show("Couldn't delete workout. Try again.", 'error')
+    }
   }
 
   if (data === undefined) {
     return (
-      <div className="flex flex-col min-h-full px-4 pt-safe">
+      <div className="flex flex-col min-h-full px-4 pt-safe pb-28">
         <div className="pt-6 pb-2 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[var(--glass)] border border-[var(--glass-border)]" />
-          <div className="h-7 w-32 rounded-lg bg-[var(--glass)]" />
+          <Skeleton width={36} height={36} radius="md" />
+          <div className="flex flex-col gap-2">
+            <Skeleton width={180} height={28} radius="md" />
+            <Skeleton width={120} height={14} radius="sm" />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2.5 mt-4">
+          <Skeleton height={88} radius="2xl" />
+          <Skeleton height={88} radius="2xl" />
+          <Skeleton height={88} radius="2xl" />
+        </div>
+        <div className="flex flex-col gap-4 mt-4">
+          <Skeleton height={180} radius="3xl" />
+          <Skeleton height={180} radius="3xl" />
         </div>
       </div>
     )

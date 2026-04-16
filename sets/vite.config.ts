@@ -15,7 +15,7 @@ export default defineConfig({
       manifest: {
         name: 'SETS',
         short_name: 'SETS',
-        description: 'Track your workouts',
+        description: 'The workout tracker built for lifters. Track sets, beat PRs, see progress.',
         theme_color: '#090E18',
         background_color: '#090E18',
         display: 'standalone',

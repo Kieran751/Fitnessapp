@@ -7,6 +7,8 @@ import { useAtomValue } from 'jotai'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
 import { NumberStepper } from '../components/ui/NumberStepper'
+import { Skeleton } from '../components/ui/Skeleton'
+import { useToast } from '../hooks/useToast'
 import { TemplateQuickStart } from '../components/dashboard/TemplateQuickStart'
 import { WeeklyActivity } from '../components/dashboard/WeeklyActivity'
 import { MuscleHeatmap } from '../components/dashboard/MuscleHeatmap'
@@ -62,52 +64,63 @@ function DashboardPage() {
 
   const { monday, sunday } = getWeekBounds()
 
+  const [statsLoading, setStatsLoading] = useState(true)
   const [thisWeekCount, setThisWeekCount] = useState(0)
   const [totalCount, setTotalCount] = useState(0)
   const [totalVolume, setTotalVolume] = useState(0)
-  const [recentWorkouts, setRecentWorkouts] = useState<Workout[]>()
+  const [recentWorkouts, setRecentWorkouts] = useState<Workout[] | undefined>(undefined)
+  const { show } = useToast()
 
   useEffect(() => {
     async function load() {
-      // This week count
-      const { count: weekCount } = await supabase
-        .from('workouts')
-        .select('*', { count: 'exact', head: true })
-        .not('completedAt', 'is', null)
-        .gte('startedAt', monday.toISOString())
-        .lte('startedAt', sunday.toISOString())
-      setThisWeekCount(weekCount ?? 0)
+      try {
+        const [weekRes, totalRes, setsRes, recentRes] = await Promise.all([
+          supabase
+            .from('workouts')
+            .select('*', { count: 'exact', head: true })
+            .not('completedAt', 'is', null)
+            .gte('startedAt', monday.toISOString())
+            .lte('startedAt', sunday.toISOString()),
+          supabase
+            .from('workouts')
+            .select('*', { count: 'exact', head: true })
+            .not('completedAt', 'is', null),
+          supabase.from('sets').select('weight, reps'),
+          supabase
+            .from('workouts')
+            .select('*')
+            .not('completedAt', 'is', null)
+            .order('completedAt', { ascending: false })
+            .limit(3),
+        ])
 
-      // Total count
-      const { count: total } = await supabase
-        .from('workouts')
-        .select('*', { count: 'exact', head: true })
-        .not('completedAt', 'is', null)
-      setTotalCount(total ?? 0)
-
-      // Total volume
-      const { data: allSets } = await supabase.from('sets').select('weight, reps')
-      const vol = (allSets ?? []).reduce((sum, s) => sum + s.weight * s.reps, 0)
-      setTotalVolume(vol)
-
-      // Recent workouts
-      const { data: workouts } = await supabase
-        .from('workouts')
-        .select('*')
-        .not('completedAt', 'is', null)
-        .order('completedAt', { ascending: false })
-        .limit(3)
-      setRecentWorkouts((workouts ?? []) as Workout[])
-
+        setThisWeekCount(weekRes.count ?? 0)
+        setTotalCount(totalRes.count ?? 0)
+        const vol = (setsRes.data ?? []).reduce((sum, s) => sum + s.weight * s.reps, 0)
+        setTotalVolume(vol)
+        setRecentWorkouts((recentRes.data ?? []) as Workout[])
+      } catch {
+        show("Couldn't load your dashboard. Pull down to retry.", 'error')
+        setRecentWorkouts([])
+      } finally {
+        setStatsLoading(false)
+      }
     }
     load()
   }, [])
 
   async function saveBodyWeight() {
-    const { data: { user: authUser } } = await supabase.auth.getUser()
-    const userId = authUser!.id
-    await supabase.from('body_weights').insert({ weight: weightValue, date: new Date(), userId })
-    setShowWeightModal(false)
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      const userId = authUser!.id
+      const { error } = await supabase
+        .from('body_weights')
+        .insert({ weight: weightValue, date: new Date(), userId })
+      if (error) throw error
+      setShowWeightModal(false)
+    } catch {
+      show("Couldn't save body weight. Try again.", 'error')
+    }
   }
 
   const weightStep = settings.units === 'kg' ? 0.5 : 1
@@ -205,48 +218,58 @@ function DashboardPage() {
         transition={{ duration: 0.35, delay: 0.2 }}
         className="mt-6 grid grid-cols-3 gap-3"
       >
-        <div
-          className="flex flex-col items-center py-4 px-3 rounded-2xl border border-[var(--glass-border)]"
-          style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
-        >
-          <p className="font-mono tabular text-2xl font-bold text-[var(--text-primary)]">
-            {thisWeekCount}
-          </p>
-          <p
-            className="text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--text-secondary)] mt-1"
-            style={{ fontFamily: "'Manrope', sans-serif" }}
-          >
-            THIS WEEK
-          </p>
-        </div>
-        <div
-          className="flex flex-col items-center py-4 px-3 rounded-2xl border border-[var(--glass-border)]"
-          style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
-        >
-          <p className="font-mono tabular text-2xl font-bold text-[var(--text-primary)]">
-            {totalCount}
-          </p>
-          <p
-            className="text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--text-secondary)] mt-1"
-            style={{ fontFamily: "'Manrope', sans-serif" }}
-          >
-            TOTAL
-          </p>
-        </div>
-        <div
-          className="flex flex-col items-center py-4 px-3 rounded-2xl border border-[var(--glass-border)]"
-          style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
-        >
-          <p className="font-mono tabular text-2xl font-bold text-[var(--text-primary)]">
-            {formatVolumeShort(totalVolume)}
-          </p>
-          <p
-            className="text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--text-secondary)] mt-1"
-            style={{ fontFamily: "'Manrope', sans-serif" }}
-          >
-            VOLUME
-          </p>
-        </div>
+        {statsLoading ? (
+          <>
+            <Skeleton height={88} radius="2xl" />
+            <Skeleton height={88} radius="2xl" />
+            <Skeleton height={88} radius="2xl" />
+          </>
+        ) : (
+          <>
+            <div
+              className="flex flex-col items-center py-4 px-3 rounded-2xl border border-[var(--glass-border)]"
+              style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+            >
+              <p className="font-mono tabular text-2xl font-bold text-[var(--text-primary)]">
+                {thisWeekCount}
+              </p>
+              <p
+                className="text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--text-secondary)] mt-1"
+                style={{ fontFamily: "'Manrope', sans-serif" }}
+              >
+                THIS WEEK
+              </p>
+            </div>
+            <div
+              className="flex flex-col items-center py-4 px-3 rounded-2xl border border-[var(--glass-border)]"
+              style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+            >
+              <p className="font-mono tabular text-2xl font-bold text-[var(--text-primary)]">
+                {totalCount}
+              </p>
+              <p
+                className="text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--text-secondary)] mt-1"
+                style={{ fontFamily: "'Manrope', sans-serif" }}
+              >
+                TOTAL
+              </p>
+            </div>
+            <div
+              className="flex flex-col items-center py-4 px-3 rounded-2xl border border-[var(--glass-border)]"
+              style={{ background: 'var(--glass)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+            >
+              <p className="font-mono tabular text-2xl font-bold text-[var(--text-primary)]">
+                {formatVolumeShort(totalVolume)}
+              </p>
+              <p
+                className="text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--text-secondary)] mt-1"
+                style={{ fontFamily: "'Manrope', sans-serif" }}
+              >
+                VOLUME
+              </p>
+            </div>
+          </>
+        )}
       </motion.div>
 
       {/* Weekly Activity */}
@@ -291,6 +314,18 @@ function DashboardPage() {
       >
         <MuscleHeatmap />
       </motion.div>
+
+      {/* Recent workouts skeleton */}
+      {recentWorkouts === undefined && (
+        <div className="mt-8 flex flex-col gap-2.5">
+          <div className="h-7 w-40 mb-1">
+            <Skeleton height={20} width={140} radius="md" />
+          </div>
+          <Skeleton height={64} radius="2xl" />
+          <Skeleton height={64} radius="2xl" />
+          <Skeleton height={64} radius="2xl" />
+        </div>
+      )}
 
       {/* Recent workouts */}
       {recentWorkouts && recentWorkouts.length > 0 && (

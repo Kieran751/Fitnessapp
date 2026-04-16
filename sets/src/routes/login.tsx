@@ -6,15 +6,24 @@ import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
 import { useAuth } from '../hooks/useAuth'
 
+interface LoginSearch {
+  mode?: 'signin' | 'signup'
+}
+
 export const Route = createFileRoute('/login')({
   component: LoginPage,
+  validateSearch: (search: Record<string, unknown>): LoginSearch => {
+    const m = search.mode
+    return { mode: m === 'signup' || m === 'signin' ? m : undefined }
+  },
 })
 
 function LoginPage() {
   const { signIn, signUp, resetPasswordForEmail } = useAuth()
   const navigate = useNavigate()
+  const search = Route.useSearch()
 
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin')
+  const [mode, setMode] = useState<'signin' | 'signup'>(search.mode ?? 'signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
