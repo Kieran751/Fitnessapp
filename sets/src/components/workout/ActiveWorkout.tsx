@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Plus } from 'lucide-react'
+import { Plus, Calculator } from 'lucide-react'
 import { useWorkout } from '../../hooks/useWorkout'
 import { ExerciseSection } from './ExerciseSection'
 import { RestTimer } from './RestTimer'
 import { ExercisePicker } from './ExercisePicker'
+import { PlateCalculator } from './PlateCalculator'
 import { Button } from '../ui/Button'
 import { type Exercise } from '../../db'
 import { formatSeconds } from '../../lib/formatters'
@@ -23,6 +24,7 @@ export function ActiveWorkout() {
   const [showPicker, setShowPicker] = useState(false)
   const [showFinishConfirm, setShowFinishConfirm] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [showPlateCalc, setShowPlateCalc] = useState(false)
   const nameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -100,9 +102,19 @@ export function ActiveWorkout() {
           </span>
         </div>
 
-        <Button size="sm" onClick={() => setShowFinishConfirm(true)}>
-          Finish
-        </Button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowPlateCalc(true)}
+            aria-label="Plate calculator"
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
+          >
+            <Calculator size={16} />
+          </button>
+          <Button size="sm" onClick={() => setShowFinishConfirm(true)}>
+            Finish
+          </Button>
+        </div>
       </div>
 
       {/* Exercise list */}
@@ -169,6 +181,12 @@ export function ActiveWorkout() {
         isOpen={showPicker}
         onClose={() => setShowPicker(false)}
         onSelect={handleSelectExercise}
+      />
+
+      {/* Plate calculator */}
+      <PlateCalculator
+        isOpen={showPlateCalc}
+        onClose={() => setShowPlateCalc(false)}
       />
 
       {/* Finish confirm */}
